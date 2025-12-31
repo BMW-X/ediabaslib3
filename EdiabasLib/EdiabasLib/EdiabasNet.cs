@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -1514,15 +1515,15 @@ namespace EdiabasLib
             IdxRegLenReg = 15,
         }
 
-        public class EdiabasNetException : Exception
-        {
-            public EdiabasNetException(string message, ErrorCodes errorCode) : base(message)
-            {
-                ErrorCode = errorCode;
-            }
+        //public class EdiabasNetException : Exception
+        //{
+        //    public EdiabasNetException(string message, ErrorCodes errorCode) : base(message)
+        //    {
+        //        ErrorCode = errorCode;
+        //    }
 
-            public ErrorCodes ErrorCode { get; private set; }
-        }
+        //    public ErrorCodes ErrorCode { get; private set; }
+        //}
 
         private class StringData
         {
@@ -4137,9 +4138,12 @@ namespace EdiabasLib
             }
         }
 
-        public void SetError(ErrorCodes error)
+		//public void SetError(ErrorCodes error)
+		public void SetError(ErrorCodes error, Dictionary<string, object> args = null, [CallerMemberName] string source = null)
         {
-            LogFormat(EdLogLevel.Error, "SetError: {0}", error);
+			//at// parameters added
+
+			LogFormat(EdLogLevel.Error, "SetError: {0}", error);
 
             if (error != ErrorCodes.EDIABAS_ERR_NONE)
             {
@@ -4157,8 +4161,9 @@ namespace EdiabasLib
                 EdValueType activeErrors = (EdValueType)((1 << _errorTrapBitNr) & ~_errorTrapMask);
                 if (activeErrors != 0)
                 {
-                    RaiseError(error);
-                }
+					//RaiseError(error);
+					RaiseError(error, args, source);
+				}
             }
             else
             {
@@ -4166,9 +4171,12 @@ namespace EdiabasLib
             }
         }
 
-        public void RaiseError(ErrorCodes error)
-        {
-            ErrorCodes errorCode = error;
+        //public void RaiseError(ErrorCodes error)
+		public void RaiseError(ErrorCodes error, Dictionary<string, object> args = null, string source = null)
+		{
+			//at// parameters added
+
+			ErrorCodes errorCode = error;
             if (_jobStdExit)
             {
                 errorCode = ErrorCodes.EDIABAS_SYS_0018;
@@ -4182,8 +4190,17 @@ namespace EdiabasLib
             {
                 errorFunc(errorCode);
             }
-            throw new EdiabasNetException(string.Format(Culture, "Error occurred: {0}", errorCode), errorCode);
-        }
+			
+            //throw new EdiabasNetException(string.Format(Culture, "Error occurred: {0}", errorCode), errorCode);
+
+			string message = EdiabasNet.GetErrorDescription(errorCode);
+
+			throw new EdiabasNetException(message, errorCode, args)
+			{
+				Source = source
+			};
+
+		}
 
         public static string GetErrorDescription(ErrorCodes errorCode)
         {
@@ -5557,11 +5574,15 @@ namespace EdiabasLib
                 catch (Exception ex)
                 {
                     LogString(EdLogLevel.Error, "executeIdentJob Exception: " + GetExceptionText(ex));
-                    if (ex is EdiabasNetException)
-                    {
-                        throw;
-                    }
-                    throw new Exception("executeIdentJob", ex);
+
+					//at// --maybe original code will work here in v.8 or EdiabasLib
+					throw;
+
+                    //if (ex is EdiabasNetException)
+                    //{
+                    //    throw;
+                    //}
+                    //throw new Exception("executeIdentJob", ex);
                 }
                 if (_resultSets.Count > 1)
                 {
@@ -5851,11 +5872,14 @@ namespace EdiabasLib
             catch (Exception ex)
             {
                 LogString(EdLogLevel.Error, "executeJob Exception: " + GetExceptionText(ex));
-                if (ex is EdiabasNetException)
-                {
-                    throw;
-                }
-                throw new Exception("executeJob", ex);
+
+                //at// --maybe original code will work here in v.8 or EdiabasLib
+                throw;
+                //if (ex is EdiabasNetException)
+                //{
+                //    throw;
+                //}
+                //throw new Exception("executeJob", ex);
             }
             finally
             {

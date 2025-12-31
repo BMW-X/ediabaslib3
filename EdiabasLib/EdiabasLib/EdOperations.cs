@@ -2613,8 +2613,13 @@ namespace EdiabasLib
                 if (string.IsNullOrEmpty(fullFileName))
                 {
                     ediabas.LogFormat(EdLogLevel.Error, "OpTabsetex: File not found {0}", baseFileName);
-                    ediabas.SetError(ErrorCodes.EDIABAS_SYS_0002);
-                    return;
+					
+                    //at//ediabas.SetError(ErrorCodes.EDIABAS_SYS_0002);
+					ediabas.SetError(ErrorCodes.EDIABAS_SYS_0002, new Dictionary<string, object>()
+					{
+						{ "filename", prgFileName }
+					});
+					return;
                 }
 
                 try
@@ -2626,8 +2631,14 @@ namespace EdiabasLib
                 catch (Exception)
                 {
                     ediabas.LogFormat(EdLogLevel.Error, "OpTabsetex: File not found {0}", baseFileName);
-                    ediabas.SetError(ErrorCodes.EDIABAS_SYS_0002);
-                    return;
+
+					//at//ediabas.SetError(ErrorCodes.EDIABAS_SYS_0002);
+					ediabas.SetError(ErrorCodes.EDIABAS_SYS_0002, new Dictionary<string, object>()
+					{
+						{ "filename", fullFileName },
+						{ "baseFileName", baseFileName},
+					});
+					return;
                 }
             }
 
