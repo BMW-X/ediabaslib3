@@ -3229,12 +3229,10 @@ namespace EdiabasLib
             EdInterfaceBase interfaceClass = ediabas.EdInterfaceClass;
             if ((interfaceClass == null) || !interfaceClass.Connected)
             {
-                ediabas.SetError(ErrorCodes.EDIABAS_IFH_0056);
+                // no channel ⇒ no frequent telegram to stop, postcondition already holds
+                return;
             }
-            else
-            {
-                interfaceClass.StopFrequent();
-            }
+            interfaceClass.StopFrequent();
         }
 
         // BEST2: iftype
