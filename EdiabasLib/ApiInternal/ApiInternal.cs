@@ -1444,7 +1444,7 @@ namespace Ediabas
                         }
                         else
                         {
-                            if (ex is EdiabasNet.EdiabasNetException ediabasNetException)
+                            if (ex is EdiabasNetException ediabasNetException)
                             {
                                 setJobError((int)ediabasNetException.ErrorCode);
                             }

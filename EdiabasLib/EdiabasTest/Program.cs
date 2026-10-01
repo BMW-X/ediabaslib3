@@ -277,7 +277,7 @@ namespace EdiabasTest
                                 _outputWriter.WriteLine("Job execution failed: " + EdiabasNet.GetExceptionText(ex));
                             }
 
-                            if (ex is EdiabasNet.EdiabasNetException)
+                            if (ex is EdiabasNetException)
                             {
                                 if (continueOnError)
                                 {
