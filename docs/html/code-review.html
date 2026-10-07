@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code review | EdiabasLib</title>
+<meta name="description" content="Findings and improvement suggestions from a review of the EdiabasLib core library on the anykee-v2 branch.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>try{var t=localStorage.getItem('edlib-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="header-row">
+    <button type="button" class="icon-button nav-toggle" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <a class="site-logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="7" width="18" height="18" rx="3" fill="#1a73e8"/><path d="M12 3v4M20 3v4M12 25v4M20 25v4M3 12h4M3 20h4M25 12h4M25 20h4" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"/><path d="M12.5 16.5l2.5 2.5 4.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>EdiabasLib</b> Docs</span></a>
+    <span class="header-spacer"></span>
+    <button type="button" class="icon-button theme-toggle" aria-label="Switch between light and dark theme" title="Switch theme"><svg class="icon-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg><svg class="icon-light" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 0 0 0-2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0-2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0-2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-2 0zM5.99 4.58a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06z"/></svg></button>
+  </div>
+  <nav class="header-tabs" aria-label="Sections">
+    <a href="index.html">Overview</a>
+    <a href="getting-started.html">Guides</a>
+    <a href="api-reference.html">Reference</a>
+    <a class="active" aria-current="true" href="fork-changes.html">This fork</a>
+  </nav>
+</header>
+<div class="page">
+<nav class="book-nav" aria-label="Documentation pages">
+  <a href="index.html">Overview</a>
+  <p class="nav-section">Guides</p>
+  <a href="getting-started.html">Get started</a>
+  <a href="architecture.html">Architecture</a>
+  <a href="interfaces.html">Interfaces and simulation</a>
+  <a href="configuration.html">Configuration</a>
+  <a href="errors-and-tracing.html">Errors and tracing</a>
+  <p class="nav-section">Reference</p>
+  <a href="api-reference.html">API reference</a>
+  <p class="nav-section">This fork</p>
+  <a href="fork-changes.html">Fork changes</a>
+  <a class="active" aria-current="page" href="code-review.html">Code review</a>
+</nav>
+<div class="nav-scrim"></div>
+<main id="main-content">
+<article>
+<ol class="breadcrumbs" aria-label="Breadcrumb"><li><a href="index.html">EdiabasLib</a></li><li>This fork</li><li aria-current="page">Code review</li></ol>
+<!-- BEGIN CONTENT -->
+<h1>Code review</h1>
+<p class="lead">Review of the <code>EdiabasLib</code> core project on branch <code>anykee-v2</code> (commit <code>8c2f61c4a</code>), with a focus on the two fork commits and on the way the AnyKee WsHub service consumes the library.</p>
+
+<h2 id="summary">Summary</h2>
+<p>The library is a mature, feature-complete EDIABAS reimplementation with careful protocol timing, invariant-culture handling, and an EDIABAS-compatible trace format. The main risks are structural: transport state is shared through static fields, the solution no longer builds end to end after the fork's .NET Framework removal, and there is no automated test coverage. Two findings affect the WsHub service directly and have one-line fixes on the WsHub side.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Severity</th><th>Count</th><th>Meaning</th></tr>
+<tr><td><span class="badge critical">Critical</span></td><td>6</td><td>Build break, data corruption between instances, or a process crash from external input.</td></tr>
+<tr><td><span class="badge high">High</span></td><td>10</td><td>Resource leaks, security weaknesses, or silent wrong behavior in supported scenarios.</td></tr>
+<tr><td><span class="badge medium">Medium</span></td><td>22</td><td>Bugs on edge paths, contract violations, or maintainability problems with real cost.</td></tr>
+<tr><td><span class="badge low">Low</span></td><td>6 groups</td><td>Cleanups, naming, dead code, and minor inconsistencies, grouped per area.</td></tr>
+</table>
+</div>
+
+<h3 id="do-first">Do these first</h3>
+<ol>
+  <li><strong>Fix the build.</strong> Update the two remaining references to the nested <code>EdiabasNet.EdiabasNetException</code> in <code>ApiInternal.cs</code> and <code>EdiabasTest/Program.cs</code>, and retarget the <code>net481</code> projects. Right now <code>Api32</code>, <code>apiNET</code>, and <code>EdiabasTest</code> cannot compile. See <a href="#fork-c1">F1</a>.</li>
+  <li><strong>In WsHub, create the ENET handler with <code>new EdInterfaceEnet(shared: false)</code>.</strong> The default constructor shares one TCP connection across every instance in the process, and the job queue runs jobs in parallel. See <a href="#enet-c1">E1</a>.</li>
+  <li><strong>In WsHub, pass plain port numbers.</strong> <code>EnetDiagnosticPort</code> and <code>EnetControlPort</code> currently receive <code>"&lt;ip&gt;:50160"</code>, which parses as port <code>192</code>. See <a href="#enet-m4">E8</a>.</li>
+  <li><strong>Embed dependencies for <code>net10.0-windows</code>.</strong> The flagship target ships a 463 KB DLL with no embedded NuGet assemblies. See <a href="#core-h1">C3</a>.</li>
+  <li><strong>Keep the old <code>SetError</code> and <code>RaiseError</code> overloads.</strong> The new optional parameters break binary compatibility for every prebuilt consumer. See <a href="#fork-h4">F3</a>.</li>
+  <li><strong>Guard the ELM327 receive thread.</strong> A malformed first frame from the adapter crashes the process. See <a href="#obd-c1">O1</a>.</li>
+</ol>
+
+<h2 id="fork">Fork changes</h2>
+<p>The fork adds two commits: <code>2a6186bc8</code> (error handling refactor, .NET 4.x removal, dependency cleanup) and <code>8c2f61c4a</code> (<code>xstopf</code> no-op on a closed channel). The direction is right; the execution leaves the solution inconsistent.</p>
+
+<div class="finding" id="fork-c1">
+<h4>F1. Solution no longer compiles <span class="badge critical">Critical</span></h4>
+<p class="loc">ApiInternal/ApiInternal.cs:1447, EdiabasTest/Program.cs:280, EdiabasTest/EdiabasTest.csproj:6, apiNET/apiNET464.csproj:5, Test/EdiabasLibCall/EdiabasLibCall.csproj:6</p>
+<p>Both files still pattern-match on <code>EdiabasNet.EdiabasNetException</code>, which the fork commented out. <code>dotnet build ApiInternal.csproj</code> fails with <code>CS0426</code>. In addition, <code>EdiabasTest</code>, <code>apiNET464</code>, and <code>EdiabasLibCall</code> target <code>net481</code> and reference projects that no longer expose a .NET Framework target, so NuGet reports <code>NU1201</code>. The last built <code>ApiInternal.dll</code> predates the fork commit, and <code>coverage.bat</code> still points at <code>bin\Debug\net481</code>.</p>
+<p><strong>Fix:</strong> replace both references with <code>EdiabasNetException</code>, retarget <code>EdiabasTest</code> to <code>net10.0-windows10.0.26100.0</code>, decide whether <code>apiNET464</code> and <code>EdiabasLibCall</code> keep a Framework target (they only make sense against the original <code>apiNET32.dll</code>), and add a CI step that builds the whole solution.</p>
+</div>
+
+<div class="finding" id="fork-h3">
+<h4>F2. Exception constructor without an error code reports success <span class="badge high">High</span></h4>
+<p class="loc">EdiabasLib/EdiabasNetException.cs:11-17</p>
+<p><code>EdiabasNetException(string message, Exception inner = null)</code> leaves <code>ErrorCode</code> at <code>EDIABAS_ERR_NONE</code> and <code>HResult</code> at the default. <code>ApiInternal</code> converts <code>ErrorCode</code> to the API error, so a caller sees <code>0</code>, which means success. The constructor is unused today, so it is a trap rather than a live bug. The fallback <code>message ?? errorCode.ToString()</code> in the other constructor never triggers because <code>GetErrorDescription</code> returns an empty string, not <code>null</code>, for unknown codes.</p>
+<p><strong>Fix:</strong> remove the code-less constructor or make it use <code>EDIABAS_SYS_0000</code>; use <code>string.IsNullOrEmpty(message)</code> for the fallback.</p>
+</div>
+
+<div class="finding" id="fork-h4">
+<h4>F3. New optional parameters break binary compatibility <span class="badge high">High</span></h4>
+<p class="loc">EdiabasLib/EdiabasNet.cs:4141, 4175</p>
+<p><code>SetError(ErrorCodes)</code> and <code>RaiseError(ErrorCodes)</code> no longer exist as separate overloads. Optional parameters are filled in by the caller's compiler, so any assembly compiled against the previous <code>EdiabasLib.dll</code> (Deep OBD, third-party interface handlers, older <code>ApiInternal</code> builds) throws <code>MissingMethodException</code> at run time. This defeats the strong-named drop-in goal.</p>
+<p><strong>Fix:</strong> keep forwarding overloads:</p>
+<pre><code class="language-csharp">public void SetError(ErrorCodes error) =&gt; SetError(error, null, null);
+public void RaiseError(ErrorCodes error) =&gt; RaiseError(error, null, null);</code></pre>
+<p><code>[CallerMemberName]</code> works as intended and yields values such as <code>OpTabsetex</code> or <code>TransmitData</code>, but the member name alone is ambiguous across handlers and it overwrites the documented meaning of <code>Exception.Source</code>. Prefer a dedicated <code>Member</code> property on the exception, or add <code>[CallerFilePath]</code>.</p>
+</div>
+
+<div class="finding" id="fork-m1">
+<h4>F4. Rethrow policy is now inconsistent across the execute paths <span class="badge medium">Medium</span></h4>
+<p class="loc">EdiabasLib/EdiabasNet.cs:5578-5584, 5876-5882 (changed); 5545-5551, 5704-5723, 5916-5924, 6973-6980 (unchanged)</p>
+<p>The job and identification paths now rethrow every exception unchanged, which is the better policy, but the exit job, base job, virtual job, and operand decoder still wrap failures in <code>new Exception(...)</code>. Aborts are still signaled by <code>new Exception("executeJob aborted")</code>, and Deep OBD matches that string. The <code>//at// maybe original code will work</code> comments leave the intent unclear.</p>
+<p><strong>Fix:</strong> apply the rethrow policy to all six sites, throw <code>OperationCanceledException</code> for aborts, and document the contract on <code>ExecuteJob</code>.</p>
+</div>
+
+<div class="finding" id="fork-m2">
+<h4>F5. The xstopf no-op treats a symptom <span class="badge medium">Medium</span></h4>
+<p class="loc">EdiabasLib/EdOperations.cs:3227-3236; EdiabasNet.cs:3961-3969</p>
+<p>Every sibling opcode (<code>xsend</code>, <code>xsendf</code>, <code>xtype</code>, <code>xvers</code>) still raises <code>EDIABAS_IFH_0056</code> for a missing channel, so trace diffs against reference EDIABAS now differ for this opcode only. The real problem is that <code>CloseSgbdFs</code> runs the exit job without a <code>try</code> block, so an <code>ENDE</code> job that calls <code>stop_frequent</code> after the link dropped fails the next job on a different ECU file.</p>
+<p><strong>Fix:</strong> keep <code>IFH_0056</code> for a <code>null</code> interface, wrap <code>ExecuteExitJob</code> in <code>CloseSgbdFs</code> with a logged <code>catch</code>, and log the no-op at <code>Ifh</code> level so traces explain the missing error.</p>
+</div>
+
+<div class="finding" id="fork-l7">
+<h4>F6. Formatting debris <span class="badge low">Low</span></h4>
+<p class="loc">EdiabasNet.cs:1518-1526, 4140-4202, 5578-5584, 5876-5882; EdOperations.cs:2616-2641; EdiabasNetException.cs:7</p>
+<p>The fork introduced tab-indented lines into space-indented files, left the old nested class and old calls as comments, and added seven <code>//at//</code> markers. The argument keys passed to <code>SetError</code> differ between the two <code>OpTabsetex</code> sites (<code>filename</code> is the <code>.prg</code> candidate at one site and the full path at the other).</p>
+<p><strong>Fix:</strong> run the formatter, delete commented code, and define the argument keys as constants.</p>
+</div>
+
+<h2 id="core">Interpreter core</h2>
+<p>Files: <code>EdiabasNet.cs</code>, <code>EdOperations.cs</code>, <code>EdiabasLib.csproj</code>, <code>Directory.Build.targets</code>.</p>
+
+<div class="finding" id="core-c2">
+<h4>C1. Static register table is rebound to the last constructed instance <span class="badge critical">Critical</span></h4>
+<p class="loc">EdiabasNet.cs:1597, 1866, 3227, 6985-7007</p>
+<p><code>RegisterList</code> is <code>static readonly</code>, each <code>Register</code> holds a reference to one <code>EdiabasNet</code>, and every constructor calls <code>SetEdiabas(this)</code> on all of them. Every opcode operand resolves registers through this table, so with two live instances in one process, the first instance reads and writes the second instance's registers. Multi-instance use is explicitly supported (instance counter, one instance per API handle). This is inherited from upstream and is the most serious defect in the core.</p>
+<p><strong>Fix:</strong> build the register array per instance in the constructor and make <code>GetRegister</code> an instance method.</p>
+</div>
+
+<div class="finding" id="core-h1">
+<h4>C2. Check-then-act on JobRunning is not atomic <span class="badge medium">Medium</span></h4>
+<p class="loc">EdiabasNet.cs:5739-5745, 5340-5344, 2579-2594</p>
+<p>The getter and setter each take the lock separately, so two threads can both pass the <code>if (JobRunning)</code> check and run the VM concurrently on shared registers and result dictionaries.</p>
+<p><strong>Fix:</strong> <code>Interlocked.CompareExchange</code> on an <code>int</code> field, or test and set inside one <code>lock</code>.</p>
+</div>
+
+<div class="finding" id="core-h1b">
+<h4>C3. net10.0-windows and net9.0 builds embed no dependencies <span class="badge high">High</span></h4>
+<p class="loc">Directory.Build.targets:13-25; EdiabasLib.csproj:5</p>
+<p>Only the <code>net8.0-windows</code> group embeds NuGet DLLs. The built <code>net10.0-windows</code> DLL is 463 KB with no manifest resources, against 6.27 MB for net8. <code>LoadAllResourceAssemblies</code> returns <code>false</code> and the resolver falls back to loading from the assembly directory, so a drop-in of a single DLL fails at first use of Newtonsoft, BouncyCastle, or <code>System.IO.Ports</code>. The net8 group also references a <code>net8.0-windows10.0.19041</code> folder for InTheHand.BluetoothLE 4.0.44 that does not exist, so the wildcard matches nothing. The <code>net48</code> group is dead and references a deleted binary.</p>
+<p><strong>Fix:</strong> add groups for net10 and net9 mirroring net8 with the correct package folders (<code>InTheHand.BluetoothLE\lib\net9.0-windows10.0.19041</code>, <code>System.IO.Ports\lib\net10.0</code>), delete the net48 group.</p>
+</div>
+
+<div class="finding" id="core-h2">
+<h4>C4. net9.0 target is neither Windows nor cross-platform <span class="badge high">High</span></h4>
+<p class="loc">EdiabasLib.csproj:26-29; Directory.Build.targets:3; EdSec4Diag.cs:270, 283</p>
+<p><code>net9.0</code> has no <code>-windows</code> suffix, yet <code>BLUETOOTH</code> is defined unconditionally, so <code>EdBluetoothInterface</code> compiles against the packages' non-Windows stub assemblies, and <code>EdSec4Diag</code> calls <code>Microsoft.Win32.Registry</code>, which throws off Windows. Windows hosts on .NET 9 get no <code>net9.0-windows</code> build.</p>
+<p><strong>Fix:</strong> decide the purpose. For Linux support, gate <code>BLUETOOTH</code> on <code>$(TargetFramework.Contains('-windows'))</code> and guard registry calls with <code>OperatingSystem.IsWindows()</code>. For Windows hosts, rename to <code>net9.0-windows10.0.26100.0</code> and extend the conditions.</p>
+</div>
+
+<div class="finding" id="core-m4">
+<h4>C5. Unsynchronized static mutable state <span class="badge medium">Medium</span></h4>
+<p class="loc">EdiabasNet.cs:2437, 2441, 2445, 2492, 3177-3213</p>
+<p><code>_trapBitDict</code> is built lazily in the constructor with no lock and is assigned before the last <code>Add</code> calls, so a concurrent constructor can observe a dictionary mid-mutation. <code>_timeMeas</code> is static but exposed through the instance property <code>TimeMeas</code> and updated with <code>+=</code> from <code>OpXsend</code>. <code>_instanceCount</code> is incremented before the constructor can throw, so a failed construction leaks the count and <code>SharedDataDict</code> is never cleared.</p>
+<p><strong>Fix:</strong> make the trap table <code>static readonly</code> with an eager initializer, make <code>_timeMeas</code> an instance field, and increment the counter at the end of the constructor.</p>
+</div>
+
+<div class="finding" id="core-m5">
+<h4>C6. Code page 1252 requires the host to register a provider <span class="badge medium">Medium</span></h4>
+<p class="loc">EdiabasNet.cs:2434</p>
+<p>The static initializer calls <code>Encoding.GetEncoding(1252)</code>. On .NET 8 and later this throws unless <code>CodePagesEncodingProvider</code> is registered. Only <code>EdiabasTest</code>, the config tool, and one sample do so; <code>ApiInternal</code> does not, so a native host loading <code>Api32.dll</code> gets a <code>TypeInitializationException</code>. The .NET Framework targets masked this until the fork removed them.</p>
+<p><strong>Fix:</strong> register the provider in a static constructor or module initializer inside the library.</p>
+</div>
+
+<div class="finding" id="core-m6">
+<h4>C7. Trace append window uses TimeSpan.Hours <span class="badge medium">Medium</span></h4>
+<p class="loc">EdiabasNet.cs:6626</p>
+<p><code>diffTime.Hours</code> is the component (0 to 23), not the total. A trace last written 25 hours ago has <code>Hours == 1</code> and is appended to; 1 hour 59 minutes also passes.</p>
+<p><strong>Fix:</strong> <code>diffTime.TotalHours &gt; TraceAppendDiffHours</code>.</p>
+</div>
+
+<div class="finding" id="core-m7">
+<h4>C8. wait and waitex overflow <span class="badge medium">Medium</span></h4>
+<p class="loc">EdOperations.cs:3278, 3284</p>
+<p><code>(int)(value * 1000)</code> wraps for <code>UInt32</code> values at or above 4,294,967 and yields a negative sleep for results at or above 2^31, which throws or, for <code>-1</code>, sleeps forever. Long waits also ignore <code>AbortJobFunc</code>.</p>
+<p><strong>Fix:</strong> compute in <code>long</code>, clamp to <code>int.MaxValue</code>, and sleep in chunks that poll the abort delegate.</p>
+</div>
+
+<div class="finding" id="core-l1">
+<h4>C9. State errors are thrown as ArgumentOutOfRangeException <span class="badge low">Low</span></h4>
+<p class="loc">EdiabasNet.cs:2614, 2644, 2674, 2704, 2883, 2905, 2927, 2995, 3070, 5343, 5448-5475, 5663, 5722, 5741, 5821, 5863</p>
+<p>"Job is running", "open SGBD failed", and "file not found" are <code>InvalidOperationException</code>, <code>InvalidDataException</code>, and <code>FileNotFoundException</code> situations. <code>GetFileType</code> passes the file name as the parameter name, which produces misleading messages.</p>
+</div>
+
+<div class="finding" id="core-l2">
+<h4>C10. Minor core issues <span class="badge low">Low</span></h4>
+<ul>
+  <li><code>EdiabasNet.cs:5668</code> logs <code>{0:X08}</code> twice; the second placeholder should be <code>{1:X08}</code>. Traces are diffed against EDIABAS, so this matters.</li>
+  <li><code>EdiabasNetException.cs:22</code> sets <code>HResult</code> to a positive value, which is a success HRESULT if the exception ever crosses a COM boundary. Encode as <code>unchecked((int)0xA0000000 | code)</code> or document it as informational.</li>
+  <li><code>EdiabasNet.cs:5627-5652</code> builds the argument log string on every job regardless of trace level.</li>
+  <li><code>ResultSets</code> and <code>ResultsRequestDict</code> return the live mutable collections; <code>SetError</code> mutates trap state outside the lock that <code>ErrorCodeLast</code> reads under.</li>
+  <li><code>Dispose</code> disposes the caller-injected interface handler without documenting ownership and does not check <code>JobRunning</code>.</li>
+  <li><code>FormatResult(result, null)</code> throws from <code>Regex.Replace</code>; accept <code>null</code> as empty.</li>
+</ul>
+</div>
+
+<h2 id="enet">ENET transport</h2>
+<p>Files: <code>EdInterfaceEnet.cs</code>, <code>EdInterfaceRplus.cs</code>, <code>TcpClientWithTimeout.cs</code>, <code>EdBcTlsClient.cs</code>, <code>EdBcTlsUtilities.cs</code>, <code>EdSec4Diag.cs</code>, <code>EdWebServer.cs</code>. This is the transport WsHub uses.</p>
+
+<div class="finding" id="enet-c1">
+<h4>E1. All EdInterfaceEnet instances share one connection by default <span class="badge critical">Critical</span></h4>
+<p class="loc">EdInterfaceEnet.cs:765, 829-835, 1692-1697, 1736; AnyKee.WsHub.Core/Jobs/EdiabasJob.cs:1430; BackgroundServices/JobQueueProcessor.cs:333</p>
+<p><code>SharedDataStatic</code> holds the TCP client, stream, receive queue, events, host connection, and TLS state. The constructor default is <code>shared = true</code>, and <code>InterfaceConnect</code> returns <code>true</code> without connecting when the shared client already exists. WsHub creates a new handler per job with the default and runs jobs through an <code>ActionBlock</code> with <code>MaxDegreeOfParallelism</code> greater than one. A second concurrent job sends its telegrams down the first job's socket and both dequeue from the same receive queue. Even with one job at a time, the finalizer of an undisposed instance disconnects the live instance's socket.</p>
+<p><strong>Fix (WsHub, one line):</strong> <code>ediabas.EdInterfaceClass = new EdInterfaceEnet(shared: false);</code>. <strong>Fix (library):</strong> make non-shared the default, or remove <code>SharedDataStatic</code> and document that sharing exists only for the single-connection Android app.</p>
+</div>
+
+<div class="finding" id="enet-h1">
+<h4>E2. TcpClient leaks on connect timeout <span class="badge high">High</span></h4>
+<p class="loc">TcpClientWithTimeout.cs:70, 88-112</p>
+<p><code>ConnectAsync</code> runs without a token; on timeout or cancel the method throws and never disposes the client, and callers never receive it. A dedicated thread is started per connect when a cancel event is passed. With <code>RetryComm=3</code> a dead ICOM leaks several sockets per failed job in a long-lived service.</p>
+<p><strong>Fix:</strong> use <code>ConnectAsync(host, port, token)</code>, wait with the timeout, and dispose the client in a <code>catch</code>.</p>
+</div>
+
+<div class="finding" id="enet-h2">
+<h4>E3. Receive pump does not handle EOF and swallows exceptions <span class="badge high">High</span></h4>
+<p class="loc">EdInterfaceEnet.cs:4700-4725</p>
+<p>When the peer closes the connection, <code>EndRead</code> returns 0, the pump re-arms <code>BeginRead</code>, and a thread-pool thread spins until the next acknowledgement timeout forces a reconnect. The <code>catch</code> logs nothing and does not set <code>ReconnectRequired</code>, so <code>Connected</code> stays <code>true</code> with no reader. ICOM devices drop idle connections, so this shows up as CPU burn and delayed failure detection in WsHub.</p>
+<p><strong>Fix:</strong> on <code>recLen &lt;= 0</code> or exception, log, set <code>ReconnectRequired</code>, signal the receive event, and stop reading.</p>
+</div>
+
+<div class="finding" id="enet-h3">
+<h4>E4. BouncyCastle TLS path validates the server certificate by issuer name only <span class="badge high">High</span></h4>
+<p class="loc">EdBcTlsClient.cs:226-231; EdBcTlsUtilities.cs:429-462</p>
+<p><code>CheckCertificateChainCa</code> returns <code>true</code> when any certificate in the chain has an issuer name equivalent to a trusted CA subject. There is no signature verification, validity check, or path building. The BouncyCastle path is the default. A gateway presenting any self-signed certificate with the BMW CA's distinguished name as issuer is accepted. The <code>SslStream</code> path builds a real chain.</p>
+<p><strong>Fix:</strong> reuse the existing <code>ValidateCertChain</code> (PKIX path validation) in <code>NotifyServerCertificate</code>, or at minimum verify the top certificate's signature with the CA public key.</p>
+</div>
+
+<div class="finding" id="enet-h4">
+<h4>E5. Compounding, non-cancellable timeouts on the caller thread <span class="badge high">High</span></h4>
+<p class="loc">EdInterfaceEnet.cs:2424, 5071-5127, 5670-5692, 1747, 1481-1558, 7427</p>
+<p><code>TransmitData</code> retries up to four times with <code>RetryComm=3</code>; each attempt can wait 10 seconds for an acknowledgement, reconnect with a 5 second timeout, and resend. A dead gateway pins a thread-pool thread for tens of seconds to over a minute per call. <code>InterfaceConnect</code> resets the cancel event even on reconnect, so a cancel during reconnect is lost. <code>IgnitionVoltage</code> is a property getter that opens a TCP control connection and blocks.</p>
+<p><strong>Fix:</strong> thread a deadline or <code>CancellationToken</code> through <code>InterfaceConnect</code> and <code>TransmitData</code>, keep the cancel event set across reconnects, and expose ignition reading as a method.</p>
+</div>
+
+<div class="finding" id="enet-m1">
+<h4>E6. Receive callbacks call InterfaceDisconnect with no synchronization <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceEnet.cs:4817-4837, 4943-5063, 2320-2324, 5221</p>
+<p>The DoIP and NMP receivers tear down the connection from the callback thread while the transmit thread may be inside <code>SendDoIpData</code> or <code>InterfaceConnect</code>. Cross-thread fields are not <code>volatile</code>, and <code>DoIpRoutingState</code> is read outside the lock that writes it.</p>
+<p><strong>Fix:</strong> receivers only flag <code>ReconnectRequired</code> and signal; the transmit thread performs the reconnect.</p>
+</div>
+
+<div class="finding" id="enet-m2">
+<h4>E7. Finalizer performs network and managed work <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceEnet.cs:1687-1690, 7674-7679; EdInterfaceObd.cs:1315-1318, 5713-5732</p>
+<p>Both handlers define a finalizer that calls <code>Dispose(false)</code>, and <code>Dispose(bool)</code> calls <code>InterfaceDisconnect</code> before checking <code>disposing</code>. That path logs through the interpreter, may run network I/O, waits up to 3 seconds on an event, releases a mutex from a thread that does not own it, and touches static shared state. Neither class owns unmanaged resources.</p>
+<p><strong>Fix:</strong> delete the finalizers and move the disconnect under <code>if (disposing)</code>.</p>
+</div>
+
+<div class="finding" id="enet-m4">
+<h4>E8. Port properties are not validated, and WsHub passes host:port strings <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceEnet.cs:948-994; EdiabasNet.cs:7252-7257; AnyKee.WsHub.Core/Jobs/EdiabasJob.cs:1426-1427</p>
+<p><code>StringToValue</code> cuts decimal input at the first <code>.</code> or <code>,</code>, so <code>"192.168.1.5:50160"</code> becomes <code>192</code>. WsHub sets <code>EnetDiagnosticPort</code> and <code>EnetControlPort</code> to exactly that form. Diagnostics work only because <code>EnetRemoteHost</code> carries the diagnostic port and overrides it, but the control port is 192, so ignition-state reads through the control channel always fail and the UDP port filter is wrong.</p>
+<p><strong>Fix (WsHub):</strong> pass <code>"50160"</code> and <code>"50161"</code>, or use <code>EnetRemoteHost = "&lt;ip&gt;:50160:50161"</code>. <strong>Fix (library):</strong> validate the range 1 to 65535 and raise <code>EDIABAS_IFH_0041</code> otherwise.</p>
+</div>
+
+<div class="finding" id="enet-m3">
+<h4>E9. Oversized frames desynchronize the stream instead of reconnecting <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceEnet.cs:4782-4786, 4908-4912, 5049-5053, 5951-5977</p>
+<p>When an advertised length exceeds the buffer, the code drains only the currently available bytes. The rest of the frame arrives later and is parsed as a new header. For the BouncyCastle TLS stream the drain is a no-op, and for <code>SslStream</code> the 1 ms read timeout throws before the timeout is restored.</p>
+<p><strong>Fix:</strong> treat it like the DoIP version check: log, set <code>ReconnectRequired</code>, stop reading.</p>
+</div>
+
+<div class="finding" id="enet-m5">
+<h4>E10. ICOM allocation over HTTP <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceEnet.cs:3553-3583, 2114, 2356, 7712-7716</p>
+<p>The user agent is appended to the long-lived <code>HttpClient</code> on every call, the continuation blocks with <code>.Result</code>, it is registered with the timeout token so a cancel silently drops it, and the handler sets <code>IcomEvent</code> after <code>Dispose</code>, which throws <code>ObjectDisposedException</code> as an unobserved task exception. Only active when <code>EnetIcomAllocate=1</code>.</p>
+</div>
+
+<div class="finding" id="enet-m7">
+<h4>E11. Secrets and weak randomness in EdSec4Diag <span class="badge medium">Medium</span></h4>
+<p class="loc">EdSec4Diag.cs:30, 31, 209; EdInterfaceEnet.cs:4152-4156</p>
+<p>A PKCS#12 password is a <code>public const</code> exported from the library; certificate serial numbers come from <code>System.Random</code>; <code>RoleMask</code> is a mutable public static array; the machine certificate's <code>.p12</code> password is derived from the machine name, so the private key on disk is effectively unprotected; registry writes compile into the non-Windows target.</p>
+<p><strong>Fix:</strong> move the password to the tool that needs it, use <code>SecureRandom</code>, make <code>RoleMask</code> read-only, guard registry code with <code>OperatingSystem.IsWindows()</code>.</p>
+</div>
+
+<div class="finding" id="enet-m6">
+<h4>E12. EdWebServer is an open control endpoint that cannot be stopped <span class="badge medium">Medium</span></h4>
+<p class="loc">EdWebServer.cs:189-191, 337-391, 418, 438-455</p>
+<p>Android-only. <code>Access-Control-Allow-Origin: *</code> lets any page in the device browser call <code>connect</code>, <code>disconnect</code>, and <code>data</code>, putting raw telegrams on the bus. The cancellation source and listener subscription are locals, so <code>Dispose</code> never stops the listener.</p>
+</div>
+
+<div class="finding" id="enet-l">
+<h4>E13. Lower-severity ENET items <span class="badge low">Low</span></h4>
+<ul>
+  <li><code>EdInterfaceEnet.cs:4234-4350</code>: TLS client certificate creation is under <code>#if false</code>, so <code>S29Certs</code> is always <code>null</code> and no client certificate is ever sent. <code>EdBcTlsClient.cs:241</code> also requires <code>rsa_sign</code> although the keys are EC P-384. Delete or finish.</li>
+  <li><code>EdInterfaceEnet.cs:403-406, 485-486, 5035-5036</code>: <code>NmpParameter</code> writes little-endian and reads big-endian; the NMP receiver appends six zero bytes to every payload.</li>
+  <li>Blanket <code>catch (Exception)</code> with no logging at lines 3471, 4722, 4793, 4919, 5465, 5536, 5663; <code>ExtractSvrLocItems</code> relies on <code>IndexOutOfRangeException</code> for bounds.</li>
+  <li><code>ReceiveEnetData</code> checks <code>recLen &lt; 4</code> then reads index 5; <code>SendEnetData</code> and <code>SendDoIpData</code> copy <code>dataLength</code> bytes without checking <code>sendData.Length</code>, and a malformed request triggers up to three reconnects.</li>
+  <li><code>InterfaceLock</code> has no callers anywhere, so the named mutex <code>EdiabasLib_InterfaceEnet</code> is created but never acquired.</li>
+  <li><code>InterfaceConnect(bool)</code> is 525 lines, <code>DetectedVehicles</code> 447, the <code>Ediabas</code> setter 360 with about 40 near-identical config blocks, and the <code>Nmt*</code> wrappers repeat 930 lines of boilerplate.</li>
+</ul>
+</div>
+
+<h2 id="obd">OBD transport</h2>
+<p>Files: <code>EdInterfaceObd.cs</code>, <code>EdInterfaceAds.cs</code>, <code>EdInterfaceEdic.cs</code>, <code>EdElmInterface.cs</code>, <code>EdElmWifiInterface.cs</code>, <code>EdCustomAdapterCommon.cs</code>, <code>EdCustomWiFiInterface.cs</code>, <code>EdBluetoothInterface.cs</code>, <code>BtLeGattSpp.cs</code>, <code>Ftd2xx.cs</code>, <code>EdInterfaceBase.cs</code>.</p>
+
+<div class="finding" id="obd-c1">
+<h4>O1. Malformed ISO-TP first frame crashes the process <span class="badge critical">Critical</span></h4>
+<p class="loc">EdElmInterface.cs:396-412, 762-768</p>
+<p>The first-frame length is taken from the adapter and used to allocate <code>recDataBuffer</code>, then five bytes are copied unconditionally. A length below five throws <code>IndexOutOfRangeException</code> on the ELM327 receive thread, which has no <code>try</code> block, so the exception terminates the process. Cheap adapters and bus glitches produce such frames.</p>
+<p><strong>Fix:</strong> validate <code>telLen &gt;= 5</code> and <code>continue</code> as the single-frame branch does; wrap the thread body in a <code>try</code> that logs and sets <code>StreamFailure</code>.</p>
+</div>
+
+<div class="finding" id="obd-h1">
+<h4>O2. All EdInterfaceObd transport state is static <span class="badge critical">Critical</span></h4>
+<p class="loc">EdInterfaceObd.cs:103-122, 1289-1308, 2834-2856; EdBluetoothInterface.cs:21-43; EdCustomWiFiInterface.cs:43-64; EdElmWifiInterface.cs:26-37</p>
+<p><code>SerialPort</code>, the communication thread, its events, counters, and the mutex are static, while the thread function is an instance method bound to whichever instance started it. A second instance in the same process (one per API handle in <code>ApiInternal</code>, also inherited by <code>EdInterfaceAds</code> and <code>EdInterfaceEdic</code>) sees the thread as running, bumps the shared request counter, and waits for a thread that executes another object's protocol handler against another object's buffers. The three static helper classes share the same pattern with static <code>Ediabas</code> fields.</p>
+<p><strong>Fix:</strong> make the fields instance fields (the named mutex already provides cross-process exclusion), or enforce a single-instance invariant explicitly with <code>EDIABAS_IFH_0018</code>.</p>
+</div>
+
+<div class="finding" id="obd-m1">
+<h4>O3. Off-by-one length guards on CommParameter <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceObd.cs:533-761 (concepts 1, 2, 3, and 0x010D), 1654-1663, 1739-1748</p>
+<p>Guards check <code>Length &lt; 7</code> but read index 7. The EDIC tester-present block tests <code>ParTesterPresentTelLen</code> instead of <code>ParEdicTesterPresentTelLen</code> and then copies from index 49 onward without bounding by the array length. An ECU file with exactly seven parameters surfaces as a raw <code>IndexOutOfRangeException</code> through <code>Api32.dll</code>.</p>
+<p><strong>Fix:</strong> change the guards to <code>&lt; 8</code>, test the right field, and bound by <code>Length - 49</code>.</p>
+</div>
+
+<div class="finding" id="obd-m3">
+<h4>O4. Wire length not validated against the receive buffer <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceObd.cs:3988-3989, 4447-4459; EdInterfaceBase.cs:875-925</p>
+<p><code>TelLengthBmwFast</code> clamps to the buffer length, and the caller then requests one more byte than fits. The ISO-TP path ignores the 18-byte response offset, so <code>Array.Copy</code> throws for lengths between 2031 and 2048, and allocates up to 64 KB per frame. <code>TelLengthBmwFast</code> and <code>DataLengthBmwFast</code> index bytes 3 to 5 without a length check, which is reachable from simulation files.</p>
+<p><strong>Fix:</strong> explicit bounds checks that return <code>EDIABAS_IFH_0009</code> after draining input; <code>if (dataBuffer.Length &lt; 4) return 0;</code> in the helpers.</p>
+</div>
+
+<div class="finding" id="obd-m4">
+<h4>O5. SetDtrSignal swallows failures and returns success <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceObd.cs:3277-3302; callers 3646, 4852, 5473</p>
+<p>Callers abort initialization with <code>EDIABAS_IFH_0041</code> on <code>false</code>, but the method returns <code>true</code> from its <code>catch</code>, so an unplugged adapter proceeds into the 5-baud or fast-init sequence with the K-Line in the wrong state.</p>
+</div>
+
+<div class="finding" id="obd-m5">
+<h4>O6. CommParameter getter always returns null <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceObd.cs:356-366; EdInterfaceEnet.cs:1202; EdInterfaceBase.cs:44, 51-52, 76-81, 678</p>
+<p>The base declares an auto-property; the overrides write <code>CommParameterProtected</code> and never call <code>base</code>, but the getter returns the never-assigned backing field. <code>InterfaceMutex</code> has a silent no-op setter, so the reassignment in <code>InterfaceUnlock</code> is discarded for subclasses that do not override it. <code>BaudAuto</code> is a mutable public static with a comment saying not to change it, and the BMW-FAST parameter arrays are mutable public statics.</p>
+</div>
+
+<div class="finding" id="obd-m6">
+<h4>O7. Busy-wait loops burn a core <span class="badge medium">Medium</span></h4>
+<p class="loc">EdInterfaceObd.cs:3093-3095, 3150-3152, 3321-3345, 3381-3414</p>
+<p><code>while (GetTimestamp() - start &lt; wait) { }</code> spins for the full byte time of a telegram, for example about 270 ms for a 256-byte KWP2000 telegram at 9600 baud, on every transmission. The 5-baud path already sleeps first and spins only the last 20 ms.</p>
+<p><strong>Fix:</strong> a <code>PreciseDelay</code> helper that sleeps coarsely and spins the last 1 to 2 ms.</p>
+</div>
+
+<div class="finding" id="obd-m7">
+<h4>O8. BLE timeouts are ignored and sync-over-async inside async code <span class="badge medium">Medium</span></h4>
+<p class="loc">BtLeGattSpp.cs:180, 183, 423, 495</p>
+<p><code>Task.Run(async () =&gt; await WriteAsync()).Wait(2000)</code> discards the <code>bool</code> result, so a timed-out write returns normally with the bytes unsent and the caller waits the full protocol timeout for a reply. A faulted task later is unobserved. <code>PairAsync().Wait()</code> inside an <code>async</code> method blocks a pool thread and can deadlock under a synchronization context.</p>
+</div>
+
+<div class="finding" id="obd-m9">
+<h4>O9. Ftd2xx P/Invoke uses raw handles and copies uninitialized memory <span class="badge medium">Medium</span></h4>
+<p class="loc">Ftd2xx.cs:197-343</p>
+<p>No <code>SafeHandle</code>, so handles leak if a caller throws before <code>FT_Close</code>. <code>FT_ReadWrapper</code> copies <code>bytesToRead</code> bytes back even when fewer were returned, and there is no <code>offset + count</code> check. Per-call <code>AllocHGlobal</code> round-trips are unnecessary. The class is used only by <code>EdiabasLibConfigTool</code>, so it could move out of the runtime library.</p>
+</div>
+
+<div class="finding" id="obd-l">
+<h4>O10. Lower-severity OBD items <span class="badge low">Low</span></h4>
+<ul>
+  <li>Fields shared between the communication thread and callers (<code>EcuConnected</code>, <code>RecBufferFrequentLength</code>, <code>BlockCounter</code>, <code>_elm327TerminateThread</code>) are not <code>volatile</code> and rely on incidental fences.</li>
+  <li>Dead <code>#if false</code> blocks at <code>EdInterfaceObd.cs:1933-1939, 5130-5136</code>, <code>EdElmInterface.cs:1063-1070</code>, <code>BtLeGattSpp.cs:357-379</code>; <code>while (cond) { return X; }</code> used as <code>if</code> at four sites; 18 blanket <code>catch (Exception)</code> blocks that discard the exception text.</li>
+  <li><code>EdInterfaceBase.cs:455, 502</code>: log format uses <code>{0}</code> twice, hiding the wake address.</li>
+  <li>23 delegate types, 46 delegate fields, four near-identical 23-line hookup blocks, 23 property pairs, and three static classes re-implementing the same 20 entry points; six copies of the "signal comm thread and poll" loop.</li>
+  <li>Culture-sensitive <code>StartsWith</code> on port identifiers at <code>EdInterfaceObd.cs:1358, 1384, 1410</code>.</li>
+  <li><code>GetConfigProperty("RetryComm")</code> parsed on every transmission from the communication thread.</li>
+  <li><code>IgnitionVoltage</code> getter reconfigures the adapter to 115200 baud and switches the transmit function as a side effect.</li>
+</ul>
+</div>
+
+<h2 id="infra">Support, build, and tests</h2>
+<p>Files: <code>EdSimFile.cs</code>, <code>IniFile.cs</code>, <code>MemoryStreamReader*.cs</code>, <code>MemoryQueueBufferStream.cs</code>, <code>EscapeStream*.cs</code>, <code>StreamExtension.cs</code>, <code>EdBase32.cs</code>, <code>Test/</code>, <code>EdiabasTest/</code>.</p>
+
+<div class="finding" id="infra-c1">
+<h4>S1. No runnable test path exists <span class="badge critical">Critical</span></h4>
+<p class="loc">EdiabasTest/EdiabasTest.csproj:6, 16; Test/Scripts/coverage.bat:30, 40</p>
+<p>The only test harness is <code>EdiabasTest</code> driven by <code>coverage.bat</code> against a car simulator, and neither builds since the .NET Framework targets were dropped. There are no unit tests. The repository's own guidance to "run coverage.bat" is stale.</p>
+<p><strong>Fix:</strong> retarget <code>EdiabasTest</code>, replace OpenCover with <code>dotnet-coverage</code> or coverlet, and add an xUnit project. See the <a href="#roadmap">roadmap</a> for a concrete first test set.</p>
+</div>
+
+<div class="finding" id="infra-h2">
+<h4>S2. IniFile has no comment handling <span class="badge high">High</span></h4>
+<p class="loc">IniFile.cs:129-159; EdSimFile.cs:487-500</p>
+<p>Lines starting with <code>;</code> or <code>#</code> are parsed as keys. Inside a <code>.sim</code> file a commented request becomes key <code>;key1</code>, which has no matching response, so the whole file is rejected with <code>EDIABAS_IFH_0026</code>. Standard EDIABAS files use <code>;</code> comments.</p>
+<p><strong>Fix:</strong> skip lines whose first non-blank character is <code>;</code> or <code>#</code>.</p>
+</div>
+
+<div class="finding" id="infra-h3">
+<h4>S3. Off-by-one in the simulation request-index operator <span class="badge high">High</span></h4>
+<p class="loc">EdSimFile.cs:323-328; EdInterfaceBase.cs:460-478</p>
+<p>The guard is <code>Count &lt; operatorIndex</code>, so <code>operatorIndex == Count</code> passes and the indexer throws <code>ArgumentOutOfRangeException</code>. Nothing catches it on the simulation path, so it escapes into the interpreter as a raw .NET exception instead of "no simulation data".</p>
+<p><strong>Fix:</strong> <code>operatorIndex &gt;= (uint)requestData.Count</code>.</p>
+</div>
+
+<div class="finding" id="infra-m">
+<h4>S4. Medium items <span class="badge medium">Medium</span></h4>
+<ul>
+  <li><code>EdSimFile.cs:70-93</code>: <code>DataItem.Equals</code> ignores <code>OperatorData</code> and <code>VarLength</code> while <code>GetHashCode</code> includes them, so distinct requests such as <code>31,XX</code> and <code>31,XX,..</code> merge into one round-robin entry.</li>
+  <li><code>MemoryStreamReaderCe.cs</code> and <code>EdSimInterface.cs</code> are in no project and contain real bugs (wrong handle reset, wrong return count, unbounded index, <code>throw ex</code>). Delete them; git keeps history. <code>MemoryStreamReaderAndroid.cs</code> is live but duplicates about 70 percent of <code>MemoryStreamReader.cs</code>.</li>
+  <li><code>EscapeStreamReader.cs:213-239</code>: <code>IsDataAvailable</code> waits on an event that only the reading thread sets, so it always sleeps the full timeout (2 seconds by default) when no data is buffered. Masked today because the Android Bluetooth path checks <code>HasData()</code> first.</li>
+  <li><code>MemoryStreamReader.cs:38, 168, 214-219</code>: rejects seek-to-end, throws bare <code>System.Exception</code>, and fails on zero-length files with <code>ArgumentException</code>. Callers catch everything, so this surfaces as "file not found".</li>
+  <li><code>IniFile.cs:116, 218</code>: reads UTF-8 while <code>EDIABAS.INI</code> and <code>.sim</code> files are Windows-1252, so a non-ASCII <code>EcuPath</code> is mangled.</li>
+  <li><code>MemoryQueueBufferStream.cs:87-90, 301-334</code> and <code>EscapeStreamReader.cs:257-282</code>: <code>Read</code> returns <code>-1</code> on mutex timeout and after dispose; per-byte kernel mutex plus <code>List.RemoveAt(0)</code> makes reads quadratic.</li>
+  <li><code>StreamExtension.cs:39, 101-175</code>: <code>ReadBytesAsync</code> spawns a thread per call, spins until timeout at EOF, and can leave an orphaned <code>ReadAsync</code> holding the caller's buffer; <code>HasData()</code> throws for non-seekable streams that are not special-cased.</li>
+</ul>
+</div>
+
+<div class="finding" id="infra-l">
+<h4>S5. Low items <span class="badge low">Low</span></h4>
+<ul>
+  <li><code>IniFile</code> write support has no callers, bypasses the lock, clears the modified flag before writing, and replaces files non-atomically. Delete it or use <code>File.Replace</code>.</li>
+  <li><code>EdSimFile.ParseHexString</code> silently drops a bare operator (<code>01+</code>) and truncates <code>0123</code> to <code>01</code> in responses while rejecting it in requests.</li>
+  <li><code>EdBase32.Decode</code> throws <code>IndexOutOfRangeException</code> instead of <code>FormatException</code> for characters above 0xFF; <code>EncodeByteString</code> is unused.</li>
+  <li><code>coverage.bat:98, 101</code> writes <code>results15.xml</code> twice, losing one coverage run.</li>
+  <li><code>EdiabasLib.config:5</code> claims <code>RetryComm</code> is read from <code>EDIABAS.INI</code>; only five keys are.</li>
+  <li><code>MemoryStreamReader.cs:323-411</code>: the directory cache with <code>FileSystemWatcher</code> only runs on the <code>net9.0</code> build and watches subdirectories, which invalidates the cache on any change under a large ECU tree.</li>
+</ul>
+</div>
+
+<h2 id="strengths">Strengths</h2>
+<ul>
+  <li><strong>Tight interpreter loop.</strong> Operands are reused, opcode dispatch is a direct table lookup, and per-opcode trace text is gated on a cached log level.</li>
+  <li><strong>Disciplined culture and encoding handling.</strong> All parsing and formatting in the core uses the invariant culture and Windows-1252; no current-culture parsing was found in the opcode file.</li>
+  <li><strong>Robust tracing.</strong> Named mutex, disposed checks, and rotating fallback files make the trace subsystem safe across processes, and the format matches EDIABAS for line-by-line diffs.</li>
+  <li><strong>Timing done right.</strong> The OBD layer uses <code>Stopwatch</code> ticks with a precomputed resolution, honors the per-protocol W and P timing parameters, and keeps a dedicated communication thread alive for tester-present traffic.</li>
+  <li><strong>Defensive frame parsing in ENET.</strong> Lengths are parsed into <code>long</code> and bounded before any cast or copy; acknowledgements are compared byte for byte; the DoIP inverse-version byte is checked; the <code>SslStream</code> path builds a real certificate chain.</li>
+  <li><strong>Simulation engine.</strong> Culture-safe parsing, two-pass exact-then-wildcard matching, and round-robin multi-response support make the <code>.sim</code> format more capable than the original.</li>
+  <li><strong>Structured errors.</strong> The fork's move to a top-level exception with an error code and argument dictionary, and messages from <code>GetErrorDescription</code>, is the right direction for hosts such as WsHub.</li>
+</ul>
+
+<h2 id="roadmap">Suggested roadmap</h2>
+<ol>
+  <li><strong>Unbreak the build and the WsHub integration (days).</strong> Fix F1, add the forwarding overloads from F3, switch WsHub to <code>shared: false</code> (E1) and plain port numbers (E8), and add a CI build for every target framework.</li>
+  <li><strong>Fix the crashers and packaging (days).</strong> O1, O3, O4, O5, S2, S3, C7, C8; delete both finalizers (E7); complete <code>Directory.Build.targets</code> for net10 and decide what <code>net9.0</code> means (C3, C4); register the code page provider inside the library (C6).</li>
+  <li><strong>Add a unit test project (one to two weeks).</strong> xUnit on <code>net10.0-windows10.0.26100.0</code> with a project reference. Cheap, hardware-free tests: <code>EdSimFile</code> parsing (standard and extended syntax, wildcards, operators, multi-response cycling, comment lines), <code>IniFile</code> (CRLF, whitespace, duplicates, culture, code page), <code>FormatResult</code>, <code>StringToValue</code>, <code>StringToFloat</code>, <code>HexToByteArray</code> (the <code>-f</code> cases in <code>coverage.bat</code> translate directly into theory rows), <code>EdBase32</code> round trips, and <code>EscapeStreamWriter</code> to <code>EscapeStreamReader</code> round trips. Then convert the <code>Test/Ecu</code> <code>.prg</code> and <code>.sim</code> runs into golden-output tests, which gives CI coverage of the interpreter without a car simulator.</li>
+  <li><strong>Make the library instance-safe (weeks).</strong> Per-instance register table (C1), atomic <code>JobRunning</code> (C2), eager static tables (C5), per-instance transport state in <code>EdInterfaceObd</code> and <code>EdInterfaceEnet</code> (O2, E1), and receivers that flag rather than disconnect (E6).</li>
+  <li><strong>Harden the network layer.</strong> Dispose the client on connect timeout (E2), handle EOF in the receive pump (E3), PKIX validation in the BouncyCastle client (E4), a cancellation token through <code>InterfaceConnect</code> and <code>TransmitData</code> (E5), and protocol-error reconnects for oversized frames (E9).</li>
+  <li><strong>Reduce structural debt.</strong> Introduce an <code>IObdTransport</code> interface so the adapter helper classes become instances and the delegate plumbing disappears; introduce an <code>IEnetFramer</code> for HSFZ, DoIP, and NMP so the send and receive pairs collapse; split <code>EdInterfaceObd.cs</code> and <code>EdiabasNet.cs</code> into partial files by protocol and concern; collapse the <code>Nmt*</code> wrappers into one call helper; delete dead files and <code>#if false</code> blocks.</li>
+  <li><strong>Finish the error model.</strong> One constructor with a mandatory code (F2), one rethrow policy (F4), <code>OperationCanceledException</code> for aborts, <code>InvalidOperationException</code> for state errors (C9), typed argument keys, and a documented ownership rule for the interface handler.</li>
+</ol>
+<!-- END CONTENT -->
+<div class="pager">
+  <a class="prev" href="fork-changes.html"><span>Previous</span>Fork changes</a>
+  <span></span>
+</div>
+<footer class="page-footer">
+<p class="page-note">Review performed against the <code>anykee-v2</code> branch of <code>Ediabaslib3</code> at commit <code>8c2f61c4a</code>. Line numbers refer to that commit.</p>
+<p>This documentation describes the <code>anykee-v2</code> branch of the <code>Ediabaslib3</code> fork.</p>
+<p>Last updated 2026-09-30.</p>
+</footer>
+</article>
+</main>
+<aside class="toc" aria-label="On this page"></aside>
+</div>
+</body>
+</html>

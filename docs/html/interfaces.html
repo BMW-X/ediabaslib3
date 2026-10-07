@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interfaces and simulation | EdiabasLib</title>
+<meta name="description" content="Interface handlers, adapter selection strings, and simulation mode in EdiabasLib.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>try{var t=localStorage.getItem('edlib-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="header-row">
+    <button type="button" class="icon-button nav-toggle" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <a class="site-logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="7" width="18" height="18" rx="3" fill="#1a73e8"/><path d="M12 3v4M20 3v4M12 25v4M20 25v4M3 12h4M3 20h4M25 12h4M25 20h4" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"/><path d="M12.5 16.5l2.5 2.5 4.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>EdiabasLib</b> Docs</span></a>
+    <span class="header-spacer"></span>
+    <button type="button" class="icon-button theme-toggle" aria-label="Switch between light and dark theme" title="Switch theme"><svg class="icon-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg><svg class="icon-light" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 0 0 0-2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0-2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0-2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-2 0zM5.99 4.58a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06z"/></svg></button>
+  </div>
+  <nav class="header-tabs" aria-label="Sections">
+    <a href="index.html">Overview</a>
+    <a class="active" aria-current="true" href="getting-started.html">Guides</a>
+    <a href="api-reference.html">Reference</a>
+    <a href="fork-changes.html">This fork</a>
+  </nav>
+</header>
+<div class="page">
+<nav class="book-nav" aria-label="Documentation pages">
+  <a href="index.html">Overview</a>
+  <p class="nav-section">Guides</p>
+  <a href="getting-started.html">Get started</a>
+  <a href="architecture.html">Architecture</a>
+  <a class="active" aria-current="page" href="interfaces.html">Interfaces and simulation</a>
+  <a href="configuration.html">Configuration</a>
+  <a href="errors-and-tracing.html">Errors and tracing</a>
+  <p class="nav-section">Reference</p>
+  <a href="api-reference.html">API reference</a>
+  <p class="nav-section">This fork</p>
+  <a href="fork-changes.html">Fork changes</a>
+  <a href="code-review.html">Code review</a>
+</nav>
+<div class="nav-scrim"></div>
+<main id="main-content">
+<article>
+<ol class="breadcrumbs" aria-label="Breadcrumb"><li><a href="index.html">EdiabasLib</a></li><li>Guides</li><li aria-current="page">Interfaces and simulation</li></ol>
+<!-- BEGIN CONTENT -->
+<h1>Interfaces and simulation</h1>
+<p class="lead">An interface handler is the class that moves telegrams between the interpreter and the vehicle. This page lists the handlers, the strings that select them, and how to run without hardware.</p>
+
+<h2 id="select">Select a handler</h2>
+<p>You select a handler in one of two ways:</p>
+<ul>
+  <li><strong>From managed code:</strong> create the handler and assign it to <code>EdiabasNet.EdInterfaceClass</code>. The setter also writes the <code>Interface</code> and <code>IfhVersion</code> properties.</li>
+  <li><strong>Through the API shim:</strong> set the <code>Interface</code> property in <code>EdiabasLib.config</code> (or pass it in <code>apiInitExt</code>). <code>ApiInternal</code> asks each handler's <code>IsValidInterfaceNameStatic</code> in turn and instantiates the first match. An unknown name raises <code>EDIABAS_IFH_0027</code>.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<tr><th>Interface name</th><th>Handler</th><th>Transport</th></tr>
+<tr><td><code>STD:OBD</code>, <code>STD:OMITEC</code></td><td><code>EdInterfaceObd</code></td><td>Serial COM port, FTDI D2XX, Bluetooth SPP or BLE, ELM327, custom Wi-Fi adapters</td></tr>
+<tr><td><code>ADS</code></td><td><code>EdInterfaceAds</code></td><td>ADS adapter on a COM port (<code>AdsComPort</code>, falls back to <code>ObdComPort</code>)</td></tr>
+<tr><td><code>EDIC</code></td><td><code>EdInterfaceEdic</code></td><td>EDIC adapter (<code>EdicComPort</code>)</td></tr>
+<tr><td><code>ENET</code></td><td><code>EdInterfaceEnet</code></td><td>HSFZ and DoIP over TCP/IP, BMW ENET cable, ICOM</td></tr>
+<tr><td><code>RPLUS:&lt;name&gt;</code></td><td><code>EdInterfaceRplus</code></td><td>RemotePLUS protocol tunneled through an ICOM_P channel</td></tr>
+</table>
+</div>
+<p>Names are case-insensitive. For <code>RPLUS</code>, the <code>&lt;name&gt;</code> after the colon selects four per-name properties: <code>RemoteHost_&lt;name&gt;</code>, <code>Port_&lt;name&gt;</code>, <code>TimeoutFunction_&lt;name&gt;</code>, and <code>IcomEnetRedirect_&lt;name&gt;</code>. You can also pass the host inline, for example <code>RPLUS:ICOM_P:RemoteHost=192.168.10.20;Port=6801</code>.</p>
+<div class="callout">
+<strong>Note:</strong> A handler reads most of its configuration properties once, when you assign it to <code>EdInterfaceClass</code>. Set the properties first and assign the handler last. See <a href="configuration.html#when">When properties take effect</a>.
+</div>
+
+<h2 id="obd">STD:OBD</h2>
+<p><code>EdInterfaceObd</code> implements the K-Line and D-CAN concepts. It chooses the concept from the communication parameters that the ECU file passes in <code>CommParameter</code>. The following table lists the concepts that the handler accepts under <code>STD:OBD</code>.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Concept number</th><th>Protocol</th></tr>
+<tr><td><code>0x0001</code></td><td>Concept 1</td></tr>
+<tr><td><code>0x0002</code></td><td>Concept 2 (ISO 9141, KWP1281)</td></tr>
+<tr><td><code>0x0003</code></td><td>Concept 3</td></tr>
+<tr><td><code>0x0005</code>, <code>0x0006</code></td><td>DS1, DS2</td></tr>
+<tr><td><code>0x010B</code>, <code>0x010C</code>, <code>0x010D</code></td><td>KWP2000 standard, KWP2000 BMW, KWP2000*</td></tr>
+<tr><td><code>0x010F</code></td><td>BMW-FAST</td></tr>
+<tr><td><code>0x0110</code></td><td>D-CAN</td></tr>
+</table>
+</div>
+<p>TP2.0, TP1.6, and ISO-TP (UDS) use concept <code>0x0000</code>, which only the <code>EDIC</code> handler accepts. Under <code>STD:OBD</code>, that concept raises <code>EDIABAS_IFH_0014</code>. To turn off individual concepts, list their numbers in <code>ObdDisabledConcepts</code>, separated by colons.</p>
+<p>The <code>ObdComPort</code> property selects the physical adapter.</p>
+<div class="table-wrap">
+<table>
+<tr><th><code>ObdComPort</code> value</th><th>Adapter</th></tr>
+<tr><td><code>COM4</code></td><td>Serial port, including FTDI virtual COM ports on Windows.</td></tr>
+<tr><td><code>FTDI0</code>, <code>FTDI:SER=&lt;serial&gt;</code></td><td>FTDI D2XX device by index or by serial number. Used on Android; on Windows use the COM port.</td></tr>
+<tr><td><code>BLUETOOTH:&lt;address&gt;#&lt;pin&gt;</code></td><td>Bluetooth SPP (EDR) adapter with the replacement ELM327 firmware.</td></tr>
+<tr><td><code>BLUETOOTH:&lt;address&gt;#BLE</code></td><td>Bluetooth Low Energy adapter through the GATT serial profile.</td></tr>
+<tr><td><code>BLUETOOTH:&lt;COM port&gt;</code></td><td>Bluetooth adapter that is already paired as a serial port. The library opens the port at 115200 baud.</td></tr>
+<tr><td><code>BLUETOOTH:&lt;address&gt;;ELM327</code></td><td>Standard ELM327 Bluetooth adapter (Android).</td></tr>
+<tr><td><code>ELM327WIFI[:&lt;ip&gt;[:&lt;port&gt;]]</code></td><td>ELM327 Wi-Fi adapter. The default address is <code>192.168.0.10:35000</code>.</td></tr>
+<tr><td><code>DEEPOBDWIFI[:&lt;ip&gt;[:&lt;port&gt;]]</code></td><td>Wi-Fi adapter with the replacement firmware.</td></tr>
+</table>
+</div>
+<p>The handler delegates adapter-specific framing to helper classes: <code>EdElmInterface</code> speaks the ELM327 AT command set, <code>EdCustomAdapterCommon</code> speaks the replacement-firmware protocol, and <code>EdBluetoothInterface</code>, <code>EdElmWifiInterface</code>, and <code>EdCustomWiFiInterface</code> own the sockets. Set <code>ObdKeepConnectionOpen</code> to <code>1</code> to keep a desktop Bluetooth link or a <code>DEEPOBDWIFI</code> link open between jobs.</p>
+
+<h2 id="enet">ENET</h2>
+<p><code>EdInterfaceEnet</code> talks to the vehicle gateway over TCP. It supports two vehicle protocols and picks the first one that answers, in the order given by <code>EnetVehicleProtocol</code>.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Protocol</th><th>Default ports</th><th>Notes</th></tr>
+<tr><td>HSFZ</td><td>Diagnostic 6801, control 6811</td><td>BMW high-speed fahrzeugzugang. Tester address <code>EnetTesterAddress</code> (default <code>0xF4</code>).</td></tr>
+<tr><td>DoIP</td><td>13400, TLS on <code>EnetSslPort</code> (default 3496)</td><td>ISO 13400. Tester address <code>EnetDoIPTesterAddress</code> (default <code>0x0EF3</code>), gateway <code>EnetDoipGatewayAddress</code> (default <code>0x0010</code>). The handler uses TLS only when <code>EnetNetworkProtocol</code> is <code>SSL</code>. See <a href="#doip-tls">DoIP over TLS</a>.</td></tr>
+</table>
+</div>
+<h3 id="enet-discovery">Vehicle discovery</h3>
+<p>The <code>EnetRemoteHost</code> property controls how the handler finds the gateway. The default is <code>auto</code>.</p>
+<div class="table-wrap">
+<table>
+<tr><th><code>EnetRemoteHost</code> value</th><th>Behavior</th></tr>
+<tr><td><code>auto</code></td><td>Broadcasts an identification request to the address in <code>EnetHostIdentService</code>. With the default address, <code>255.255.255.255</code>, this value behaves like <code>auto:all</code>.</td></tr>
+<tr><td><code>auto:all</code></td><td>Broadcasts on every network interface. Prefer this on machines with more than one adapter.</td></tr>
+<tr><td><code>auto:&lt;interface name&gt;</code></td><td>Broadcasts on interfaces whose name starts with the given text.</td></tr>
+<tr><td><code>&lt;ip&gt;</code></td><td>Connects to the address and tries the protocols in <code>EnetVehicleProtocol</code> order. The host must be an IP address, not a name.</td></tr>
+<tr><td class="wrap"><code>&lt;ip&gt;:HSFZ[:&lt;diagnostic port&gt;[:&lt;control port&gt;]]</code></td><td>Connects with HSFZ only. You can omit <code>HSFZ</code> and put the ports right after the address. When you give a port, the handler treats the device as an ICOM.</td></tr>
+<tr><td class="wrap"><code>&lt;ip&gt;:DoIP[:&lt;DoIP port&gt;[:&lt;SSL port&gt;]]</code></td><td>Connects with DoIP only. The handler still sends a UDP identification request to the address before it connects.</td></tr>
+<tr><td><code>&lt;ip&gt;:RPLUS</code></td><td>Connects with RemotePLUS to an ICOM on port 6801.</td></tr>
+</table>
+</div>
+<h3 id="doip-tls">DoIP over TLS</h3>
+<p>Set <code>EnetNetworkProtocol</code> to <code>SSL</code> to run DoIP over TLS on the SSL port. The following properties control the TLS connection:</p>
+<ul>
+  <li><code>SslBC</code> selects the TLS implementation. With the default, <code>1</code>, the handler uses the BouncyCastle client in <code>EdBcTlsClient</code>. With <code>0</code>, it uses the .NET <code>SslStream</code>.</li>
+  <li><code>SslSecurityPath</code> names the directory with the trusted CA certificates.</li>
+  <li><code>S29Path</code> names the directory with the client certificates. When you don't set it, the handler uses the <code>S29\Certificates</code> directory next to <code>SslSecurityPath</code>. <code>selectCertificate</code> names the certificate to load.</li>
+  <li><code>JSONRequestPath</code> and <code>JSONResponsePath</code> name the directories where <code>EdSec4Diag</code> writes certificate requests and imports certificate responses.</li>
+</ul>
+<h3 id="icom">ICOM</h3>
+<p>A BMW ICOM exposes each vehicle channel on its own diagnostic and control port. Use the ports from the ICOM web interface, either in the <code>EnetRemoteHost</code> string or in <code>EnetDiagnosticPort</code> and <code>EnetControlPort</code>.</p>
+<p>Set <code>EnetIcomAllocate</code> to <code>1</code> to make the library allocate the channel before it connects. The library sends an HTTP request to port 5302 of the ICOM. Allocation runs only on the first connect, not on a reconnect, and only when the connection is an ICOM connection: the <code>EnetRemoteHost</code> string contains ports, the interface is <code>RPLUS</code>, or discovery found an ICOM.</p>
+<p>The <code>RPLUS</code> handler reaches the ICOM_P channel through port 6801. When <code>IcomEnetRedirect_&lt;name&gt;</code> is <code>1</code> and discovery finds an ICOM at that address with diagnostic port 50160 and control port 50161, the handler switches from RemotePLUS to HSFZ.</p>
+
+<h2 id="base">The handler contract</h2>
+<p>A handler derives from <code>EdInterfaceBase</code>, implements its abstract members, and overrides the virtual members that it needs. The following table lists the most important members.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Member</th><th>Kind</th><th>Purpose</th></tr>
+<tr><td><code>IsValidInterfaceName(string)</code></td><td>Abstract</td><td>Returns <code>true</code> when the handler accepts the interface name.</td></tr>
+<tr><td><code>InterfaceConnect()</code>, <code>InterfaceDisconnect()</code></td><td>Virtual</td><td>Open and close the physical link. The base implementation resets the communication parameters, loads or unloads the interface simulation file, and returns <code>true</code>.</td></tr>
+<tr><td><code>InterfaceReset()</code>, <code>InterfaceBoot()</code></td><td>Abstract</td><td>Reset the adapter or the ECU link.</td></tr>
+<tr><td class="wrap"><code>TransmitData(byte[] sendData, out byte[] receiveData)</code></td><td>Abstract</td><td>Send one request and receive one response.</td></tr>
+<tr><td><code>TransmitFrequent</code>, <code>ReceiveFrequent</code>, <code>StopFrequent</code></td><td>Abstract</td><td>Start, poll, and stop a repeated request. They back the BEST/1 <code>xsendf</code>, <code>xrequf</code>, and <code>xstopf</code> opcodes.</td></tr>
+<tr><td class="wrap"><code>RawData(byte[] sendData, out byte[] receiveData)</code></td><td>Abstract</td><td>Backs the <code>xraw</code> opcode. Only the RemotePLUS path forwards the bytes. The OBD handler answers a few fixed requests, and the ENET handler returns an empty response.</td></tr>
+<tr><td><code>TransmitCancel(bool)</code></td><td>Abstract</td><td>Abort an in-progress transmission.</td></tr>
+<tr><td><code>CommParameter</code>, <code>CommAnswerLen</code></td><td>Virtual</td><td>Communication parameters set by the ECU file. They drive baud rate, timing, and concept selection.</td></tr>
+<tr><td><code>KeyBytes</code>, <code>State</code>, <code>BatteryVoltage</code>, <code>IgnitionVoltage</code></td><td>Abstract</td><td>Status values that the BEST/1 <code>xkeyb</code>, <code>xstate</code>, <code>xbatt</code>, and <code>xignit</code> opcodes return.</td></tr>
+<tr><td><code>Connected</code>, <code>IsEcuConnected</code></td><td>Abstract</td><td>Link status. The interpreter checks <code>Connected</code> before it calls <code>StopFrequent</code>.</td></tr>
+<tr><td><code>InterfaceLock(int timeout = 0)</code>, <code>InterfaceUnlock()</code></td><td>Virtual</td><td>Acquire and release the named system mutex that protects the adapter across processes.</td></tr>
+</table>
+</div>
+<p>The base class also implements an optional transmit cache, which is off by default. When a host sets <code>EnableTransmitCache</code> to <code>true</code>, <code>TransmitData</code> in the OBD and ENET handlers first looks the request bytes up in the cache. A request that the handler has seen before is answered from the cache, including a cached error code. Setting <code>EnableTransmitCache</code> to <code>false</code> clears the cache.</p>
+
+<h2 id="simulation">Simulation mode</h2>
+<p>Simulation lets you run jobs without a vehicle. Set <code>Simulation</code> to <code>1</code> and point <code>SimulationPath</code> at a directory of <code>.sim</code> files. The library looks for two kinds of file:</p>
+<ul>
+  <li><strong>Interface simulation files</strong> named after the lower-case interface name, for example <code>enet.sim</code> or <code>obd.sim</code>. The <code>SimulationInterfaces</code> property lists the names to try and accepts wildcards.</li>
+  <li><strong>ECU simulation files</strong> named after the lower-case <code>.PRG</code> file, for example <code>d_motor.sim</code>.</li>
+</ul>
+<p>A simulation file is an INI file. Each key in the <code>[REQUEST]</code> section maps to a comma-separated list of hex bytes; <code>X</code> matches any nibble. When a request matches, the library returns the entry with the same key from the <code>[RESPONSE]</code> section.</p>
+<pre><code class="language-ini">[REQUEST]
+key1=83,01,F1,19,02,0C
+key2=83,01,F1,22,20,00
+
+[RESPONSE]
+key1=83,F1,01,59,02,7F,4F
+key2=93,F1,01,62,20,00,01,00,12,28,80,32,80,28,80,31,80,28,01,00,20,28,3E</code></pre>
+<p>The parser reads the following sections:</p>
+<div class="table-wrap">
+<table>
+<tr><th>Section</th><th>Content</th></tr>
+<tr><td><code>[REQUEST]</code>, <code>[RESPONSE]</code></td><td>Request and response telegrams, matched by key.</td></tr>
+<tr><td><code>[KEYBYTES]</code></td><td>Key bytes that the ECU returns after initialization.</td></tr>
+<tr><td><code>[POWERSUPPLY]</code></td><td><code>UBatt</code>, <code>UBATTCURRENT</code>, and <code>UBATTHISTORY</code> values.</td></tr>
+<tr><td><code>[IGNITION]</code></td><td><code>Ignition</code>, <code>IGNITIONCURRENT</code>, and <code>IGNITIONHISTORY</code> values.</td></tr>
+<tr><td><code>[&lt;hex address&gt;.REQUEST]</code> and similar</td><td>The same sections for one ECU address.</td></tr>
+</table>
+</div>
+<p><code>EdSimFile</code> parses the file, and <code>EdInterfaceBase.TransmitSimulationData</code> answers requests from it. The extended syntax supports several responses for one request, which lets you simulate an ECU search over functional addressing. For the full syntax, see <code>docs/EdiabasLib.simulation_file.md</code>. The <code>LogfileConverter</code> tool in <code>Tools/</code> generates simulation files from trace logs.</p>
+<div class="callout">
+<strong>Note:</strong> With <code>SimulationCompat</code> set to <code>0</code> (the default), an ECU file that reads the <code>Simulation</code> property gets <code>0</code>, so its jobs behave as they do on a real vehicle and read every queued response to a functional request. With <code>1</code>, the ECU file sees the real value.
+</div>
+<!-- END CONTENT -->
+<div class="pager">
+  <a class="prev" href="architecture.html"><span>Previous</span>Architecture</a>
+  <a class="next" href="configuration.html"><span>Next</span>Configuration</a>
+</div>
+<footer class="page-footer">
+<p>This documentation describes the <code>anykee-v2</code> branch of the <code>Ediabaslib3</code> fork.</p>
+<p>Last updated 2026-09-30.</p>
+</footer>
+</article>
+</main>
+<aside class="toc" aria-label="On this page"></aside>
+</div>
+</body>
+</html>

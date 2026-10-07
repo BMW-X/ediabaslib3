@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fork changes | EdiabasLib</title>
+<meta name="description" content="How the anykee-v2 fork of EdiabasLib differs from the upstream uholeschak/ediabaslib project, and how to update code that calls the library.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>try{var t=localStorage.getItem('edlib-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="header-row">
+    <button type="button" class="icon-button nav-toggle" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <a class="site-logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="7" width="18" height="18" rx="3" fill="#1a73e8"/><path d="M12 3v4M20 3v4M12 25v4M20 25v4M3 12h4M3 20h4M25 12h4M25 20h4" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"/><path d="M12.5 16.5l2.5 2.5 4.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>EdiabasLib</b> Docs</span></a>
+    <span class="header-spacer"></span>
+    <button type="button" class="icon-button theme-toggle" aria-label="Switch between light and dark theme" title="Switch theme"><svg class="icon-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg><svg class="icon-light" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 0 0 0-2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0-2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0-2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-2 0zM5.99 4.58a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06z"/></svg></button>
+  </div>
+  <nav class="header-tabs" aria-label="Sections">
+    <a href="index.html">Overview</a>
+    <a href="getting-started.html">Guides</a>
+    <a href="api-reference.html">Reference</a>
+    <a class="active" aria-current="true" href="fork-changes.html">This fork</a>
+  </nav>
+</header>
+<div class="page">
+<nav class="book-nav" aria-label="Documentation pages">
+  <a href="index.html">Overview</a>
+  <p class="nav-section">Guides</p>
+  <a href="getting-started.html">Get started</a>
+  <a href="architecture.html">Architecture</a>
+  <a href="interfaces.html">Interfaces and simulation</a>
+  <a href="configuration.html">Configuration</a>
+  <a href="errors-and-tracing.html">Errors and tracing</a>
+  <p class="nav-section">Reference</p>
+  <a href="api-reference.html">API reference</a>
+  <p class="nav-section">This fork</p>
+  <a class="active" aria-current="page" href="fork-changes.html">Fork changes</a>
+  <a href="code-review.html">Code review</a>
+</nav>
+<div class="nav-scrim"></div>
+<main id="main-content">
+<article>
+<ol class="breadcrumbs" aria-label="Breadcrumb"><li><a href="index.html">EdiabasLib</a></li><li>This fork</li><li aria-current="page">Fork changes</li></ol>
+<!-- BEGIN CONTENT -->
+<h1>Fork changes</h1>
+<p class="lead">This page describes how the <code>anykee-v2</code> branch differs from the upstream EdiabasLib project, why each change exists, and what you need to update in code that calls the library.</p>
+
+<h2 id="baseline">Fork baseline</h2>
+<p>The fork starts from a single upstream commit and adds two commits on top of it. The following table identifies both sides so that you can reproduce the comparison.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Item</th><th>Value</th></tr>
+<tr><td>Upstream project</td><td><a href="https://github.com/uholeschak/ediabaslib">uholeschak/ediabaslib</a></td></tr>
+<tr><td>Fork repository</td><td><code>https://github.com/BMW-X/ediabaslib3</code></td></tr>
+<tr><td>Fork branch</td><td><code>anykee-v2</code>. The <code>anykee</code> branch points at the same commit.</td></tr>
+<tr><td>Base commit</td><td><code>ddd129427</code>, "Using command line parser", December 31, 2025</td></tr>
+<tr><td>Fork commits</td><td><code>2a6186bc8</code>, "Refactor error handling, drop .NET 4.x, clean up deps", December 31, 2025<br><code>8c2f61c4a</code>, "Treat xstopf on closed channel as no-op", May 19, 2026</td></tr>
+<tr><td>Size of the change</td><td>9 files, 105 insertions, 103 deletions</td></tr>
+<tr><td>Upstream commits not in the fork</td><td>1,600. The <code>master</code> branch mirrors upstream as of May 19, 2026, and the fork hasn't merged it.</td></tr>
+</table>
+</div>
+<p>Every change is in the <code>EdiabasLib/EdiabasLib</code> project, except for one line in <code>ApiInternal.csproj</code>. The interface handlers, the protocol implementations, the simulation engine, and the trace format are identical to upstream at the base commit.</p>
+
+<h2 id="summary">Summary of changes</h2>
+<p>The following table lists each change and how it affects code that calls the library.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Change</th><th>Files</th><th>Effect on callers</th></tr>
+<tr><td><a href="#exception-class"><code>EdiabasNetException</code> is a top-level class</a> with an argument dictionary</td><td class="wrap"><code>EdiabasNetException.cs</code> (new), <code>EdiabasNet.cs</code>, <code>EdInterfaceEnet.cs</code></td><td><span class="badge breaking">Breaking</span> Source code that names <code>EdiabasNet.EdiabasNetException</code> no longer compiles.</td></tr>
+<tr><td><a href="#seterror"><code>SetError</code> and <code>RaiseError</code> accept context</a></td><td><code>EdiabasNet.cs</code></td><td><span class="badge breaking">Breaking</span> Assemblies compiled against upstream must be recompiled.</td></tr>
+<tr><td><a href="#message">Exception messages use the EDIABAS error text</a></td><td><code>EdiabasNet.cs</code></td><td><span class="badge breaking">Breaking</span> Code that parses <code>Error occurred: ...</code> stops matching.</td></tr>
+<tr><td><a href="#exception-class"><code>HResult</code> and <code>Source</code> carry the error number and the reporting member</a></td><td class="wrap"><code>EdiabasNetException.cs</code>, <code>EdiabasNet.cs</code></td><td><span class="badge compatible">Additive</span></td></tr>
+<tr><td><a href="#args">"File not found" errors include the file names</a></td><td><code>EdOperations.cs</code></td><td><span class="badge compatible">Additive</span></td></tr>
+<tr><td><a href="#rethrow"><code>ExecuteJob</code> and the identification job rethrow exceptions unchanged</a></td><td><code>EdiabasNet.cs</code></td><td><span class="badge breaking">Breaking</span> Code that reads <code>InnerException</code> or matches the wrapper message must change.</td></tr>
+<tr><td><a href="#xstopf"><code>xstopf</code> does nothing on a closed channel</a></td><td><code>EdOperations.cs</code></td><td><span class="badge neutral">Behavior</span> Jobs that failed with <code>IFH-0056</code> now succeed.</td></tr>
+<tr><td><a href="#frameworks">.NET Framework targets removed, <code>net9.0</code> added</a></td><td class="wrap"><code>EdiabasLib.csproj</code>, <code>ApiInternal.csproj</code></td><td><span class="badge breaking">Breaking</span> .NET Framework hosts can't load the library.</td></tr>
+<tr><td><a href="#frameworks">Patched Bluetooth LE artifacts removed</a></td><td><code>BluetoothLE_Patch/</code>, <code>Binaries/net462/</code></td><td><span class="badge compatible">None</span> on .NET 8 and later.</td></tr>
+</table>
+</div>
+
+<h2 id="structured-errors">Structured error reporting</h2>
+<p>Commit <code>2a6186bc8</code> changes how the interpreter reports errors. The goal is to let a host application react to an error from the exception alone: the exception carries the EDIABAS error code, the EDIABAS error text, the member that reported the error, and any context values, such as the name of a missing ECU file.</p>
+
+<h3 id="exception-class">Top-level exception class</h3>
+<p>Upstream declares <code>EdiabasNetException</code> as a class nested inside <code>EdiabasNet</code>. The fork moves it to its own file, <code>EdiabasNetException.cs</code>, as a top-level class in the <code>EdiabasLib</code> namespace, and adds the <code>Args</code> property and a second constructor.</p>
+<div class="compare">
+<div>
+<h4>Upstream</h4>
+<pre><code class="language-csharp">public partial class EdiabasNet
+{
+    public class EdiabasNetException : Exception
+    {
+        public EdiabasNetException(string message,
+            ErrorCodes errorCode) : base(message)
+        {
+            ErrorCode = errorCode;
+        }
+
+        public ErrorCodes ErrorCode { get; private set; }
+    }
+}</code></pre>
+</div>
+<div>
+<h4>Fork</h4>
+<pre><code class="language-csharp">public class EdiabasNetException : Exception
+{
+    public ErrorCodes ErrorCode { get; init; }
+        = ErrorCodes.EDIABAS_ERR_NONE;
+    public Dictionary&lt;string, object&gt; Args { get; init; }
+        = new Dictionary&lt;string, object&gt;();
+
+    public EdiabasNetException(string message,
+        Exception innerException = null)
+        : base(message, innerException) { }
+
+    public EdiabasNetException(string message,
+        ErrorCodes errorCode,
+        Dictionary&lt;string, object&gt; args = null)
+        : base(message ?? errorCode.ToString())
+    {
+        ErrorCode = errorCode;
+        HResult = (int)errorCode;
+        if (args != null) { Args = args; }
+    }
+}</code></pre>
+</div>
+</div>
+<p>The following table compares what the exception carries in each version.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Member</th><th>Upstream</th><th>Fork</th></tr>
+<tr><td>Full type name</td><td><code>EdiabasLib.EdiabasNet+EdiabasNetException</code></td><td><code>EdiabasLib.EdiabasNetException</code></td></tr>
+<tr><td><code>ErrorCode</code></td><td>The EDIABAS error code.</td><td>Unchanged. The setter is now <code>init</code> instead of <code>private set</code>.</td></tr>
+<tr><td><code>Args</code></td><td>Not available.</td><td>Context values for the error. Empty when the error site passes none; never <code>null</code>.</td></tr>
+<tr><td><code>Message</code></td><td><code>Error occurred: EDIABAS_IFH_0009</code></td><td><code>IFH-0009: NO RESPONSE FROM CONTROLUNIT</code></td></tr>
+<tr><td><code>HResult</code></td><td>The .NET default for <code>Exception</code>.</td><td>The integer value of the error code, for example <code>92</code> for <code>EDIABAS_SYS_0002</code>.</td></tr>
+<tr><td><code>Source</code></td><td>The .NET default, which is the assembly name.</td><td>The name of the member that called <code>SetError</code>, for example <code>OpTabsetex</code>.</td></tr>
+</table>
+</div>
+<p>The interpreter itself only uses the constructor that takes an error code. The constructor that takes an inner exception exists for host code that wants to wrap its own failures; an exception created that way has <code>ErrorCode</code> set to <code>EDIABAS_ERR_NONE</code>.</p>
+
+<h3 id="seterror">SetError and RaiseError signatures</h3>
+<p>Both methods gain optional parameters that carry the context into the exception.</p>
+<div class="compare">
+<div>
+<h4>Upstream</h4>
+<pre><code class="language-csharp">public void SetError(ErrorCodes error)
+
+public void RaiseError(ErrorCodes error)</code></pre>
+</div>
+<div>
+<h4>Fork</h4>
+<pre><code class="language-csharp">public void SetError(ErrorCodes error,
+    Dictionary&lt;string, object&gt; args = null,
+    [CallerMemberName] string source = null)
+
+public void RaiseError(ErrorCodes error,
+    Dictionary&lt;string, object&gt; args = null,
+    string source = null)</code></pre>
+</div>
+</div>
+<p>The values flow as follows:</p>
+<ol>
+  <li>An opcode or an interface handler calls <code>SetError</code>. The compiler fills in <code>source</code> with the name of the calling member.</li>
+  <li>If the running job hasn't masked the error with the BEST/1 error trap, <code>SetError</code> passes <code>args</code> and <code>source</code> to <code>RaiseError</code>. A masked error discards both.</li>
+  <li><code>RaiseError</code> creates the exception with the EDIABAS error text as the message, stores <code>args</code> in <code>Args</code>, and assigns <code>source</code> to <code>Source</code>.</li>
+</ol>
+<p>Six opcode sites in <code>EdOperations.cs</code> call <code>RaiseError</code> directly and don't pass a source. For those errors, <code>Source</code> keeps the .NET default. The <code>ErrorRaisedFunc</code> callback still receives only the error code; read <code>Args</code> from the exception.</p>
+<div class="callout warning">
+<strong>Warning:</strong> The C# compiler resolves optional parameters at the call site. An assembly that was compiled against the upstream <code>EdiabasLib.dll</code> and calls <code>SetError(ErrorCodes)</code> or <code>RaiseError(ErrorCodes)</code>, such as a custom interface handler, throws <code>MissingMethodException</code> when it runs against the fork. Recompile every such assembly against the fork.
+</div>
+
+<h3 id="message">Exception messages</h3>
+<p>Upstream formats the message from the enum name. The fork uses the text that <code>EdiabasNet.GetErrorDescription</code> returns, which is the same text that the original EDIABAS shows.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Error code</th><th>Upstream message</th><th>Fork message</th></tr>
+<tr><td><code>EDIABAS_IFH_0009</code></td><td><code>Error occurred: EDIABAS_IFH_0009</code></td><td><code>IFH-0009: NO RESPONSE FROM CONTROLUNIT</code></td></tr>
+<tr><td><code>EDIABAS_SYS_0002</code></td><td><code>Error occurred: EDIABAS_SYS_0002</code></td><td><code>SYS-0002: ECU OBJECT FILE NOT FOUND</code></td></tr>
+<tr><td><code>EDIABAS_SYS_0018</code></td><td><code>Error occurred: EDIABAS_SYS_0018</code></td><td><code>SYS-0018: END JOB ERROR</code></td></tr>
+</table>
+</div>
+<p>Don't parse the message to identify an error. Compare <code>ErrorCode</code> with a member of <code>EdiabasNet.ErrorCodes</code> instead.</p>
+
+<h3 id="args">Error arguments</h3>
+<p>The fork passes arguments at two error sites, both in the <code>tabsetex</code> opcode (<code>OpTabsetex</code> in <code>EdOperations.cs</code>). An ECU file runs this opcode to read a table from another ECU file, and the opcode reports <code>EDIABAS_SYS_0002</code> when it can't find or open that file.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Situation</th><th>Key</th><th>Value</th></tr>
+<tr><td>Neither <code>&lt;name&gt;.prg</code> nor <code>&lt;name&gt;.grp</code> exists in <code>EcuPath</code>.</td><td><code>filename</code></td><td>The full path of the <code>.prg</code> file that the opcode looked for.</td></tr>
+<tr><td rowspan="2">The file exists, but the library can't open it.</td><td><code>filename</code></td><td>The full path of the file that failed to open.</td></tr>
+<tr><td><code>baseFileName</code></td><td>The file name that the ECU file requested, without directory or extension.</td></tr>
+</table>
+</div>
+<p>All other error sites pass no arguments.</p>
+<div class="callout">
+<strong>Note:</strong> These arguments describe a file that a running job refers to. When the ECU file that you pass to <code>ResolveSgbdFile</code> or <code>ExecuteJob</code> is missing, the library throws <code>ArgumentOutOfRangeException</code>, not <code>EDIABAS_SYS_0002</code>. See <a href="errors-and-tracing.html#other-exceptions">Exceptions that aren't EDIABAS errors</a>.
+</div>
+<p>The following example uses the arguments to report which table file is missing:</p>
+<pre><code class="language-csharp">try
+{
+    ediabas.ExecuteJob("FS_LESEN");
+}
+catch (EdiabasNetException ex) when (ex.ErrorCode == EdiabasNet.ErrorCodes.EDIABAS_SYS_0002)
+{
+    string missing = ex.Args.TryGetValue("filename", out object value) ? value as string : null;
+    Console.WriteLine($"{ex.Message} ({missing ?? "unknown file"}), reported by {ex.Source}");
+}</code></pre>
+
+<h3 id="rethrow">Exceptions from ExecuteJob keep their type</h3>
+<p>Upstream wraps every exception that isn't an <code>EdiabasNetException</code> in a plain <code>System.Exception</code> before it leaves the job. The fork rethrows the original exception in two places: the job loop behind <code>ExecuteJob</code>, and the identification job that <code>ResolveSgbdFile</code> runs for a group file.</p>
+<div class="compare">
+<div>
+<h4>Upstream</h4>
+<pre><code class="language-csharp">catch (Exception ex)
+{
+    LogString(EdLogLevel.Error,
+        "executeJob Exception: " + GetExceptionText(ex));
+    if (ex is EdiabasNetException)
+    {
+        throw;
+    }
+    throw new Exception("executeJob", ex);
+}</code></pre>
+</div>
+<div>
+<h4>Fork</h4>
+<pre><code class="language-csharp">catch (Exception ex)
+{
+    LogString(EdLogLevel.Error,
+        "executeJob Exception: " + GetExceptionText(ex));
+    throw;
+}</code></pre>
+</div>
+</div>
+<p>This has the following consequences for a host:</p>
+<ul>
+  <li>A transport failure, such as an <code>IOException</code> from a serial port, reaches your code with its own type and its original stack trace. In upstream, you find it in <code>InnerException</code> of an exception with the message <code>executeJob</code> or <code>executeIdentJob</code>.</li>
+  <li>When <code>AbortJobFunc</code> returns <code>true</code>, the interpreter throws an <code>Exception</code> with the message <code>executeJob aborted</code>. In the fork, that exception reaches your code directly. In upstream, it's the <code>InnerException</code> of the <code>executeJob</code> wrapper.</li>
+  <li>The exit job, the base job, and the virtual jobs (for example <code>_JOBS</code>) still wrap non-EDIABAS exceptions in <code>System.Exception</code>, as in upstream.</li>
+</ul>
+
+<h2 id="xstopf">The xstopf opcode on a closed channel</h2>
+<p>Commit <code>8c2f61c4a</code> changes the BEST/1 <code>xstopf</code> opcode (<code>stop_frequent</code> in BEST/2), which stops a repeated telegram.</p>
+<div class="compare">
+<div>
+<h4>Upstream</h4>
+<pre><code class="language-csharp">if ((interfaceClass == null) || !interfaceClass.Connected)
+{
+    ediabas.SetError(ErrorCodes.EDIABAS_IFH_0056);
+}
+else
+{
+    interfaceClass.StopFrequent();
+}</code></pre>
+</div>
+<div>
+<h4>Fork</h4>
+<pre><code class="language-csharp">if ((interfaceClass == null) || !interfaceClass.Connected)
+{
+    // no channel: no frequent telegram to stop
+    return;
+}
+interfaceClass.StopFrequent();</code></pre>
+</div>
+</div>
+<p>BMW functional jobs, for example <code>IDENT_FUNKTIONAL</code> in <code>f01.prg</code>, run <code>stop_frequent</code> right after they hang up the connection, or between two protocol concepts over ENET. At that point the diagnostic channel is closed on purpose, and upstream fails the job with <code>IFH-0056: ILLEGAL CHANNEL</code>. With no open channel there is no repeated telegram to stop, so the fork treats the opcode as complete and continues the job.</p>
+<div class="callout">
+<strong>Note:</strong> Only <code>xstopf</code> changes. The other interface opcodes, such as <code>xsend</code>, <code>xstate</code>, and <code>xtype</code>, still report <code>EDIABAS_IFH_0056</code> when no interface handler is assigned. The fork doesn't write a trace line when it skips the opcode, so a trace from the fork has no <code>IFH-0056</code> entry where a trace from upstream has one.
+</div>
+
+<h2 id="frameworks">Target frameworks and dependencies</h2>
+<p>Commit <code>2a6186bc8</code> removes the .NET Framework targets and adds a <code>net9.0</code> target to the core library.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Project</th><th>Upstream target frameworks</th><th>Fork target frameworks</th></tr>
+<tr><td><code>EdiabasLib.csproj</code></td><td class="wrap"><code>net10.0-windows10.0.26100.0</code>, <code>net8.0-windows10.0.26100.0</code>, <code>net48</code>, <code>net481</code></td><td class="wrap"><code>net10.0-windows10.0.26100.0</code>, <code>net8.0-windows10.0.26100.0</code>, <code>net9.0</code></td></tr>
+<tr><td><code>ApiInternal.csproj</code></td><td class="wrap"><code>net10.0-windows10.0.26100.0</code>, <code>net8.0-windows10.0.26100.0</code>, <code>net48</code>, <code>net481</code></td><td class="wrap"><code>net10.0-windows10.0.26100.0</code>, <code>net8.0-windows10.0.26100.0</code></td></tr>
+</table>
+</div>
+<p>The commit also makes the following dependency changes:</p>
+<ul>
+  <li>The <code>InTheHand.BluetoothLE</code> and <code>System.IO.Ports</code> package references now apply to the <code>net9.0</code> target as well as to the two Windows targets.</li>
+  <li>The patched Bluetooth LE build for .NET Framework is gone: <code>Binaries/net462/InTheHand.BluetoothLEMod.dll</code>, <code>BluetoothLE_Patch/InTheHand.BluetoothLE.patch</code>, and <code>BluetoothLE_Patch/InTheHand.snk</code>. Only the .NET Framework targets used these files.</li>
+</ul>
+<p>The <code>net9.0</code> target has no Windows suffix, so a project that doesn't target Windows can reference it. It compiles the same sources as the two Windows targets, including code that only works on Windows. For the limitations, see <a href="code-review.html#core-h2">finding C4 in the code review</a>.</p>
+
+<h2 id="migrate">Update code that calls the library</h2>
+<p>To move a host application or an interface handler from upstream EdiabasLib to the fork, do the following:</p>
+<ol>
+  <li>Target .NET 8 or later. The fork has no .NET Framework build.</li>
+  <li>Replace every reference to <code>EdiabasNet.EdiabasNetException</code> with <code>EdiabasNetException</code>. The namespace, <code>EdiabasLib</code>, stays the same.</li>
+  <li>Recompile every assembly that calls <code>SetError</code> or <code>RaiseError</code>. No source change is needed.</li>
+  <li>Replace any check of the exception message with a check of <code>ErrorCode</code>.</li>
+  <li>Review each <code>catch</code> block around <code>ExecuteJob</code> and <code>ResolveSgbdFile</code>:
+    <ul>
+      <li>Catch <code>EdiabasNetException</code> first for ECU and interpreter errors.</li>
+      <li>Catch <code>Exception</code> after it for transport failures and aborts. Read the exception itself, not its <code>InnerException</code>.</li>
+    </ul>
+  </li>
+  <li>If your code relies on <code>EDIABAS_IFH_0056</code> from <code>stop_frequent</code> to detect a closed channel, check <code>EdInterfaceClass.Connected</code> instead.</li>
+</ol>
+<p>The following example shows a <code>catch</code> sequence that handles all three outcomes:</p>
+<pre><code class="language-csharp">try
+{
+    ediabas.ResolveSgbdFile("d_motor.grp");
+    ediabas.ExecuteJob("FS_LESEN");
+}
+catch (EdiabasNetException ex)
+{
+    // ECU or interpreter error with an EDIABAS error code.
+    logger.Error("{Code} {Message} from {Source}", ex.ErrorCode, ex.Message, ex.Source);
+}
+catch (Exception ex) when (ex.Message == "executeJob aborted")
+{
+    // AbortJobFunc returned true.
+}
+catch (Exception ex)
+{
+    // Transport failure or internal error, with its original type.
+    logger.Error(ex, "Job failed");
+}</code></pre>
+
+<h2 id="known-issues">Known issues</h2>
+<p>The fork updates the core library only. The projects around it still expect the upstream API, so parts of the solution don't build. The results for <code>EdiabasLib</code>, <code>ApiInternal</code>, and <code>EdiabasTest</code> come from a build with .NET SDK 10.0.401 on September 30, 2026. The other rows come from reading the project files.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Project</th><th>Result</th><th>Cause</th></tr>
+<tr><td><code>EdiabasLib</code></td><td>Builds for all three target frameworks.</td><td>Not applicable.</td></tr>
+<tr><td><code>ApiInternal</code></td><td>Compiler error <code>CS0426</code>.</td><td><code>ApiInternal.cs</code>, line 1447, still names <code>EdiabasNet.EdiabasNetException</code>. Because <code>Api32</code> and <code>apiNET</code> depend on this project, the drop-in replacement DLLs can't be built from the fork.</td></tr>
+<tr><td><code>EdiabasTest</code></td><td>Restore error <code>NU1201</code>.</td><td>The project targets <code>net481</code>, which can't reference the fork's <code>EdiabasLib</code>. <code>Program.cs</code>, line 280, also still names the nested exception type.</td></tr>
+<tr><td><code>apiNET464</code>, <code>EdiabasLibCall</code></td><td>Not built. Both target <code>net481</code>.</td><td>Same framework mismatch as <code>EdiabasTest</code>.</td></tr>
+<tr><td><code>EdiabasLibAndroidNet</code></td><td>Not built. Expected to fail.</td><td>The project links each source file by name, and its list doesn't include the new <code>EdiabasNetException.cs</code>, which <code>EdiabasNet.cs</code> now needs.</td></tr>
+</table>
+</div>
+<p>Two smaller leftovers are also worth knowing about:</p>
+<ul>
+  <li><code>EdiabasLib.csproj</code> and <code>Directory.Build.targets</code> still contain item groups for <code>net48</code> and <code>net481</code>. They never apply, and the one in <code>Directory.Build.targets</code> names the deleted <code>InTheHand.BluetoothLEMod.dll</code>.</li>
+  <li>The upstream code that the fork replaced remains in the source as comments, next to <code>//at//</code> markers. Search for that marker to find every edited site.</li>
+</ul>
+<p>For an assessment of these issues and suggested fixes, see <a href="code-review.html#fork">Fork changes in the code review</a>.</p>
+
+<h2 id="compare">Compare the fork with upstream</h2>
+<p>Run the following commands from the repository root to inspect the fork's changes yourself.</p>
+<pre><code class="language-shell"># List the fork's commits
+git log --oneline ddd129427..anykee-v2
+
+# Summarize the changed files
+git diff --stat ddd129427 anykee-v2
+
+# Show the change to one file
+git diff ddd129427 anykee-v2 -- EdiabasLib/EdiabasLib/EdiabasNet.cs
+
+# Count the upstream commits that the fork hasn't merged
+git rev-list --count anykee-v2..master</code></pre>
+<!-- END CONTENT -->
+<div class="pager">
+  <a class="prev" href="api-reference.html"><span>Previous</span>API reference</a>
+  <a class="next" href="code-review.html"><span>Next</span>Code review</a>
+</div>
+<footer class="page-footer">
+<p>This documentation describes the <code>anykee-v2</code> branch of the <code>Ediabaslib3</code> fork.</p>
+<p>Last updated 2026-09-30.</p>
+</footer>
+</article>
+</main>
+<aside class="toc" aria-label="On this page"></aside>
+</div>
+</body>
+</html>

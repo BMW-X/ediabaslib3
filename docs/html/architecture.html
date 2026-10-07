@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture | EdiabasLib</title>
+<meta name="description" content="How a diagnostic job flows through EdiabasLib from the host application to the vehicle.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>try{var t=localStorage.getItem('edlib-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="header-row">
+    <button type="button" class="icon-button nav-toggle" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <a class="site-logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="7" width="18" height="18" rx="3" fill="#1a73e8"/><path d="M12 3v4M20 3v4M12 25v4M20 25v4M3 12h4M3 20h4M25 12h4M25 20h4" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"/><path d="M12.5 16.5l2.5 2.5 4.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>EdiabasLib</b> Docs</span></a>
+    <span class="header-spacer"></span>
+    <button type="button" class="icon-button theme-toggle" aria-label="Switch between light and dark theme" title="Switch theme"><svg class="icon-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg><svg class="icon-light" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 0 0 0-2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0-2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0-2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-2 0zM5.99 4.58a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06z"/></svg></button>
+  </div>
+  <nav class="header-tabs" aria-label="Sections">
+    <a href="index.html">Overview</a>
+    <a class="active" aria-current="true" href="getting-started.html">Guides</a>
+    <a href="api-reference.html">Reference</a>
+    <a href="fork-changes.html">This fork</a>
+  </nav>
+</header>
+<div class="page">
+<nav class="book-nav" aria-label="Documentation pages">
+  <a href="index.html">Overview</a>
+  <p class="nav-section">Guides</p>
+  <a href="getting-started.html">Get started</a>
+  <a class="active" aria-current="page" href="architecture.html">Architecture</a>
+  <a href="interfaces.html">Interfaces and simulation</a>
+  <a href="configuration.html">Configuration</a>
+  <a href="errors-and-tracing.html">Errors and tracing</a>
+  <p class="nav-section">Reference</p>
+  <a href="api-reference.html">API reference</a>
+  <p class="nav-section">This fork</p>
+  <a href="fork-changes.html">Fork changes</a>
+  <a href="code-review.html">Code review</a>
+</nav>
+<div class="nav-scrim"></div>
+<main id="main-content">
+<article>
+<ol class="breadcrumbs" aria-label="Breadcrumb"><li><a href="index.html">EdiabasLib</a></li><li>Guides</li><li aria-current="page">Architecture</li></ol>
+<!-- BEGIN CONTENT -->
+<h1>Architecture</h1>
+<p class="lead">EdiabasLib has three layers: an optional binary-compatible API shim, the BEST/1 interpreter, and a family of interface handlers that move telegrams to and from the vehicle.</p>
+
+<h2 id="layers">Layers</h2>
+<div class="diagram"><pre>host application
+   │
+   ├─ direct .NET reference ──────────────────────────────┐
+   │                                                      │
+   └─ Api32.dll / apiNET32.dll  (binary-compatible shim)  │
+             │                                            │
+             ▼                                            ▼
+        ApiInternal  ─── selects handler from "Interface" ─►  EdiabasNet   (BEST/1 virtual machine)
+                                                              │  ResolveSgbdFile()   finds the .PRG for a .GRP
+                                                              │  ExecuteJob()        dispatches opcodes (EdOperations.cs)
+                                                              │
+                                                              │  EdInterfaceClass
+                                                              ▼
+                                                        EdInterfaceBase  (abstract)
+                                                          ├── EdInterfaceObd      serial, FTDI, Bluetooth, Wi-Fi (K-Line, D-CAN)
+                                                          │     ├── EdInterfaceAds  ADS adapter
+                                                          │     └── EdInterfaceEdic EDIC adapter
+                                                          ├── EdInterfaceEnet     HSFZ and DoIP over Ethernet, ICOM
+                                                          │     └── EdInterfaceRplus  RemotePLUS through ICOM_P
+                                                          └── simulation           EdSimFile plays back .sim files</pre></div>
+
+<h3 id="api-shim">API shim</h3>
+<p>The <code>Api32</code> project is a C++/CLI assembly that exports the EDIABAS C functions. It forwards every call to <code>ApiInternal</code>, which owns one <code>EdiabasNet</code> per API handle and maps the C-style result access functions (<code>apiResultText</code>, <code>apiResultInt</code>, and so on) onto the result sets. When a host uses the shim, the <code>Interface</code> configuration property decides which handler <code>ApiInternal</code> creates. Managed hosts that reference <code>EdiabasLib.dll</code> directly skip this layer and assign <code>EdInterfaceClass</code> themselves.</p>
+
+<h3 id="interpreter">Interpreter</h3>
+<p><code>EdiabasNet</code> is a <code>partial class</code> split across two files:</p>
+<ul>
+  <li><code>EdiabasNet.cs</code> holds the data structures, configuration, file loading, group resolution, the execution loop, registers and flags, result-set assembly, and the trace writers.</li>
+  <li><code>EdOperations.cs</code> holds a static method for each implemented BEST/1 opcode, for example <code>OpA2Fix</code>, <code>OpTabsetex</code>, and <code>OpXstopf</code>. The dispatcher in <code>EdiabasNet.cs</code> looks the handler up in an opcode table and passes the operand descriptors. An opcode without a handler throws <code>ArgumentOutOfRangeException</code> with the text <code>Function not implemented</code>.</li>
+</ul>
+<p>Values inside the VM use the aliases <code>EdValueType</code> (<code>UInt32</code>) and <code>EdFloatType</code> (<code>Double</code>). The library emulates EDIABAS 7.7.2, and the opcodes always use the behavior of that version. The one run-time switch is the <code>CompatMode</code> property, which only affects the <code>a2flt</code> opcode: with <code>0</code>, an invalid floating-point string raises <code>EDIABAS_BIP_0011</code>; with the default, <code>1</code>, it doesn't.</p>
+
+<h3 id="handlers">Interface handlers</h3>
+<p>Every transport derives from <code>EdInterfaceBase</code>. The interpreter talks to the handler through the members that the base class declares, such as <code>TransmitData</code>, <code>TransmitFrequent</code>, <code>ReceiveFrequent</code>, <code>StopFrequent</code>, <code>RawData</code>, <code>CommParameter</code>, <code>KeyBytes</code>, and the status properties. The base class provides the simulation hooks, an optional transmit cache, and BMW-FAST helpers. See <a href="interfaces.html">Interfaces and simulation</a>.</p>
+
+<h2 id="job-flow">How a job runs</h2>
+<ol>
+  <li><strong>Resolve the ECU file.</strong> <code>ResolveSgbdFile(name)</code> calls <code>GetFileType</code> to classify the file. For a <code>.PRG</code> file, it stores the name in <code>SgbdFileName</code>. For a <code>.GRP</code> file, it runs the group's <code>IDENTIFIKATION</code> job through the interface, reads the <code>VARIANTE</code> result, stores the matching <code>.PRG</code> name, and sets <code>GroupName</code> and <code>FamilyName</code>. Resolved groups are cached per instance; <code>ClearGroupMapping()</code> clears the cache.</li>
+  <li><strong>Open the file.</strong> On the first <code>ExecuteJob</code> after a file name change, the interpreter opens the <code>.PRG</code> file with <code>MemoryStreamReader</code>, which memory-maps it on desktop builds, and reads the list of base files, the version information, the job list, and the table list. If the file can't be opened, <code>ExecuteJob</code> throws <code>ArgumentOutOfRangeException</code>.</li>
+  <li><strong>Run the initialization job.</strong> After each file open, the interpreter runs <code>INITIALISIERUNG</code> before the job you asked for. The job is mandatory: a file without it raises <code>EDIABAS_SYS_0008</code>, and an initialization job that doesn't report <code>DONE</code> as <code>1</code> raises <code>EDIABAS_SYS_0010</code>. Standard jobs read <code>ArgStringStd</code> and <code>ArgBinaryStd</code> instead of the user arguments.</li>
+  <li><strong>Execute the job.</strong> <code>ExecuteJobPrivate</code> looks the job up in the job list and raises <code>EDIABAS_SYS_0008</code> when it's missing. It resets the flags, the string registers, the stack, and the error trap state, and then loops over the bytecode. Each opcode reads its operands through the address-mode decoder and calls the handler in <code>EdOperations.cs</code>. Opcodes that talk to the ECU (<code>xsend</code>, <code>xrequf</code>, <code>xstopf</code>, and others) call the interface handler.</li>
+  <li><strong>Collect results.</strong> The result opcodes (<code>ergb</code>, <code>ergw</code>, <code>ergd</code>, <code>ergi</code>, <code>ergr</code>, <code>ergs</code>, <code>ergy</code>, and others) add typed values to the current result set, and <code>enewset</code> closes the set. The job itself skips the results you didn't ask for: its <code>etag</code> opcode checks each result name against <code>ResultsRequests</code>.</li>
+  <li><strong>Assemble the result list.</strong> When the job ends, the interpreter builds the system result set, inserts it at index 0, and publishes the new list through <code>ResultSets</code>. It then clears the job arguments.</li>
+</ol>
+
+<h3 id="result-sets">Result set layout</h3>
+<p><code>ResultSets</code> is a <code>List&lt;Dictionary&lt;string, ResultData&gt;&gt;</code>. Index 0 is the system set, which mirrors the EDIABAS system results.</p>
+<div class="table-wrap">
+<table>
+<tr><th>System result</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>VARIANTE</code></td><td><code>TypeS</code></td><td>Upper-case ECU file name without extension.</td></tr>
+<tr><td><code>GRUPPE</code>, <code>FAMILIE</code></td><td><code>TypeS</code></td><td>Lower-case group and family names. Empty when you resolve a <code>.PRG</code> file directly.</td></tr>
+<tr><td><code>OBJECT</code></td><td><code>TypeS</code></td><td>Name of the object that provides the job (the file itself or a base file).</td></tr>
+<tr><td><code>JOBNAME</code></td><td><code>TypeS</code></td><td>Name of the executed job.</td></tr>
+<tr><td><code>SAETZE</code></td><td><code>TypeW</code></td><td>Number of job result sets (excluding the system set).</td></tr>
+<tr><td><code>JOBSTATUS</code></td><td><code>TypeS</code></td><td>Status string set by the job. Present when <code>SystemResults</code> isn't <code>0</code>, which is the default.</td></tr>
+<tr><td class="wrap"><code>UBATTCURRENT</code>, <code>UBATTHISTORY</code>, <code>IGNITIONCURRENT</code>, <code>IGNITIONHISTORY</code></td><td><code>TypeI</code></td><td>Battery and ignition state. Present when <code>SystemResults</code> isn't <code>0</code>. The values are <code>-1</code> unless the job runs in simulation mode.</td></tr>
+</table>
+</div>
+<p>Sets 1 through <code>SAETZE</code> hold the job results. Each <code>ResultData</code> carries the result name, a <code>ResultType</code>, and the boxed value in <code>OpData</code>. Integer types box as <code>Int64</code>, <code>TypeR</code> as <code>Double</code>, <code>TypeS</code> as <code>string</code>, and <code>TypeY</code> as <code>byte[]</code>.</p>
+
+<h2 id="threading">Threading model</h2>
+<ul>
+  <li>One <code>EdiabasNet</code> instance runs one job at a time. <code>ExecuteJob</code> throws <code>ArgumentOutOfRangeException</code> when <code>JobRunning</code> is <code>true</code>.</li>
+  <li>The following setters also throw while a job runs: <code>ArgString</code>, <code>ArgBinary</code>, <code>ArgStringStd</code>, <code>ArgBinaryStd</code>, <code>SgbdFileName</code>, <code>EdInterfaceClass</code>, <code>AbortJobFunc</code>, <code>ProgressJobFunc</code>, and <code>ErrorRaisedFunc</code>. <code>SetConfigProperty</code> throws for <code>EcuPath</code>, <code>Simulation</code>, and <code>SimulationPath</code>.</li>
+  <li>To abort a job from another thread, set <code>AbortJobFunc</code> before the job starts and have the delegate read a flag that the other thread sets.</li>
+  <li>Property reads are guarded by a private lock, so another thread can read <code>InfoProgressPercent</code> or <code>JobRunning</code> while a job runs.</li>
+  <li>The library doesn't lock the adapter by itself. <code>InterfaceLock</code> acquires a named system mutex, one per handler class, and only <code>ApiInternal</code> calls it. A host that references the library directly and shares an adapter between processes must call <code>InterfaceLock</code> and <code>InterfaceUnlock</code> itself.</li>
+  <li>A few caches are static and shared across instances: the error trap bit table, the shared data dictionary, and the embedded assembly loader. The library counts live instances and clears the shared data when the last instance is disposed.</li>
+</ul>
+
+<h2 id="ownership">Ownership and disposal</h2>
+<p><code>EdiabasNet</code> implements <code>IDisposable</code>. <code>Dispose</code> closes the ECU file and any open table or user files, disposes the interface handler assigned to <code>EdInterfaceClass</code>, and then closes the trace writers. Assign a fresh handler to each instance. Don't share one handler between instances.</p>
+
+<h2 id="conditional-compilation">Conditional compilation</h2>
+<p>Most source files build into both the desktop library and the Android library. The code branches on the following symbols.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Symbol</th><th>Defined by</th><th>Effect</th></tr>
+<tr><td><code>ANDROID</code></td><td>The .NET Android SDK</td><td>Uses <code>android.util.Log</code>, the Android Bluetooth and FTDI drivers, and skips desktop file IO.</td></tr>
+<tr><td><code>USE_SERIAL_PORT</code></td><td><code>#if !ANDROID</code> at the top of <code>EdInterfaceObd.cs</code></td><td>Enables the <code>System.IO.Ports</code> path.</td></tr>
+<tr><td><code>BLUETOOTH</code></td><td><code>Directory.Build.targets</code></td><td>Enables desktop Bluetooth SPP and BLE code in <code>EdBluetoothInterface.cs</code>.</td></tr>
+<tr><td><code>COMPRESS_TRACE</code></td><td>Android builds</td><td>Adds the <code>CompressTrace</code> property. When the property isn't <code>0</code>, the library writes the trace into a ZIP archive.</td></tr>
+</table>
+</div>
+<div class="callout">
+<strong>Note:</strong> When you change a file that contains <code>#if ANDROID</code>, build <code>EdiabasLibAndroidNet</code> as well. The desktop build doesn't compile the Android branches.
+</div>
+<!-- END CONTENT -->
+<div class="pager">
+  <a class="prev" href="getting-started.html"><span>Previous</span>Get started</a>
+  <a class="next" href="interfaces.html"><span>Next</span>Interfaces and simulation</a>
+</div>
+<footer class="page-footer">
+<p>This documentation describes the <code>anykee-v2</code> branch of the <code>Ediabaslib3</code> fork.</p>
+<p>Last updated 2026-09-30.</p>
+</footer>
+</article>
+</main>
+<aside class="toc" aria-label="On this page"></aside>
+</div>
+</body>
+</html>

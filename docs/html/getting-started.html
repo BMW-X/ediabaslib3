@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get started | EdiabasLib</title>
+<meta name="description" content="Build EdiabasLib and run your first diagnostic job from C# or from the command line.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>try{var t=localStorage.getItem('edlib-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="header-row">
+    <button type="button" class="icon-button nav-toggle" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <a class="site-logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="7" width="18" height="18" rx="3" fill="#1a73e8"/><path d="M12 3v4M20 3v4M12 25v4M20 25v4M3 12h4M3 20h4M25 12h4M25 20h4" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"/><path d="M12.5 16.5l2.5 2.5 4.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>EdiabasLib</b> Docs</span></a>
+    <span class="header-spacer"></span>
+    <button type="button" class="icon-button theme-toggle" aria-label="Switch between light and dark theme" title="Switch theme"><svg class="icon-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg><svg class="icon-light" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 0 0 0-2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0-2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0-2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-2 0zM5.99 4.58a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06z"/></svg></button>
+  </div>
+  <nav class="header-tabs" aria-label="Sections">
+    <a href="index.html">Overview</a>
+    <a class="active" aria-current="true" href="getting-started.html">Guides</a>
+    <a href="api-reference.html">Reference</a>
+    <a href="fork-changes.html">This fork</a>
+  </nav>
+</header>
+<div class="page">
+<nav class="book-nav" aria-label="Documentation pages">
+  <a href="index.html">Overview</a>
+  <p class="nav-section">Guides</p>
+  <a class="active" aria-current="page" href="getting-started.html">Get started</a>
+  <a href="architecture.html">Architecture</a>
+  <a href="interfaces.html">Interfaces and simulation</a>
+  <a href="configuration.html">Configuration</a>
+  <a href="errors-and-tracing.html">Errors and tracing</a>
+  <p class="nav-section">Reference</p>
+  <a href="api-reference.html">API reference</a>
+  <p class="nav-section">This fork</p>
+  <a href="fork-changes.html">Fork changes</a>
+  <a href="code-review.html">Code review</a>
+</nav>
+<div class="nav-scrim"></div>
+<main id="main-content">
+<article>
+<ol class="breadcrumbs" aria-label="Breadcrumb"><li><a href="index.html">EdiabasLib</a></li><li>Guides</li><li aria-current="page">Get started</li></ol>
+<!-- BEGIN CONTENT -->
+<h1>Get started</h1>
+<p class="lead">This page shows you how to build the library, run a job from C#, and run a job from the command line.</p>
+
+<h2 id="build">Build the library</h2>
+<p>You need the .NET SDK 10 or later. Run the following commands from the repository root.</p>
+<pre><code class="language-shell"># Build the core library for every target framework
+dotnet build EdiabasLib\EdiabasLib\EdiabasLib.csproj -c Release
+
+# Build the core library for a single target framework
+dotnet build EdiabasLib\EdiabasLib\EdiabasLib.csproj -c Release -f net8.0-windows10.0.26100.0</code></pre>
+<div class="callout caution">
+<strong>Caution:</strong> Build the project file, not <code>EdiabasLib.sln</code>. In this fork, <code>ApiInternal</code> and <code>EdiabasTest</code> don't compile, so a build of the whole solution fails. See <a href="fork-changes.html#known-issues">Known issues</a>.
+</div>
+<p>For the <code>net8.0-windows</code> target, the build embeds the NuGet dependencies (BouncyCastle, Newtonsoft.Json, InTheHand Bluetooth, System.IO.Ports) into <code>EdiabasLib.dll</code> as resources. The custom step lives in <code>Directory.Build.targets</code>. At run time, the static constructor of <code>EdiabasNet</code> loads the embedded assemblies and registers an assembly resolver for them.</p>
+<div class="callout caution">
+<strong>Caution:</strong> <code>Directory.Build.targets</code> only embeds resources for the <code>net8.0-windows</code> target. Builds for <code>net10.0-windows</code> and <code>net9.0</code> produce a DLL without embedded dependencies. For those builds, ship the NuGet assemblies next to <code>EdiabasLib.dll</code>; the resolver loads them from that directory.
+</div>
+<p><code>Api32</code> is a C++/CLI project and <code>IfhLog</code> is a native C++ project. Build them with MSBuild or Visual Studio, not with <code>dotnet build</code>.</p>
+
+<h2 id="first-job">Run a job from C#</h2>
+<p>Reference <code>EdiabasLib.dll</code> from your project and follow these steps:</p>
+<ol>
+  <li>Register the code pages encoding provider before you create the first <code>EdiabasNet</code> instance. ECU strings use Windows-1252, and the library requests that encoding when the type loads.</li>
+  <li>Create an <code>EdiabasNet</code> instance. The constructor reads <code>EDIABAS.INI</code> and <code>EdiabasLib.config</code> from the directory that contains the assembly.</li>
+  <li>Set the configuration properties that the interface needs, such as <code>EnetRemoteHost</code> or <code>ObdComPort</code>, and set <code>EcuPath</code>.</li>
+  <li>Assign an interface handler to <code>EdInterfaceClass</code>. The handler reads its configuration properties at this point, so assign it after you set them. The instance takes ownership and disposes the handler with itself.</li>
+  <li>Call <code>ResolveSgbdFile</code> with a group or ECU file name. For a group file, the library runs the identification job and selects the matching variant.</li>
+  <li>Set the job arguments and the requested results, and then call <code>ExecuteJob</code>. <code>ExecuteJob</code> clears the arguments when it returns, so set them again before each job.</li>
+  <li>Read <code>ResultSets</code>. Set 0 holds the system results; sets 1 and later hold the job results.</li>
+</ol>
+<pre><code class="language-csharp">using System;
+using System.Collections.Generic;
+using System.Text;
+using EdiabasLib;
+
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+using (EdiabasNet ediabas = new EdiabasNet())
+{
+    // Set the properties first. The handler reads them when you assign it.
+    ediabas.SetConfigProperty("EnetRemoteHost", "192.168.10.11");
+    ediabas.SetConfigProperty("EcuPath", @"C:\EDIABAS\Ecu");
+
+    // Choose the transport. EdiabasNet disposes it for you.
+    ediabas.EdInterfaceClass = new EdInterfaceEnet();
+
+    // Optional callbacks. Set them before the job starts.
+    ediabas.ProgressJobFunc = e =&gt; Console.WriteLine($"{e.InfoProgressPercent,3}% {e.InfoProgressText}");
+    ediabas.AbortJobFunc = () =&gt; false;
+
+    try
+    {
+        // Resolve the group file to the concrete ECU variant.
+        ediabas.ResolveSgbdFile("d_motor.grp");
+
+        ediabas.ArgString = string.Empty;                     // job arguments, separated by ';'
+        ediabas.ResultsRequests = "STAT_MOTORDREHZAHL_WERT";  // empty string returns all results
+
+        ediabas.ExecuteJob("STATUS_MOTORDREHZAHL");
+
+        List&lt;Dictionary&lt;string, EdiabasNet.ResultData&gt;&gt; sets = ediabas.ResultSets;
+        for (int i = 1; i &lt; sets.Count; i++)
+        {
+            foreach (EdiabasNet.ResultData result in sets[i].Values)
+            {
+                string text = result.OpData is byte[] data
+                    ? BitConverter.ToString(data)
+                    : EdiabasNet.FormatResult(result, string.Empty);
+                Console.WriteLine($"[{i}] {result.Name} ({result.ResType}) = {text}");
+            }
+        }
+    }
+    catch (EdiabasNetException ex)
+    {
+        // ECU or interpreter error with an EDIABAS error code.
+        Console.WriteLine($"{ex.ErrorCode}: {ex.Message}");
+    }
+    catch (Exception ex)
+    {
+        // Missing ECU file, transport failure, or abort.
+        Console.WriteLine(ex.Message);
+    }
+}</code></pre>
+
+<div class="callout">
+<strong>Note:</strong> Pass <code>string.Empty</code>, not <code>null</code>, as the format to <code>FormatResult</code>. The method returns <code>null</code> for binary results, which is why the example converts <code>byte[]</code> values itself.
+</div>
+
+<h3 id="job-arguments">Job arguments</h3>
+<p>EDIABAS jobs accept either a string argument list or a binary argument. Set one of the following properties before you call <code>ExecuteJob</code>:</p>
+<div class="table-wrap">
+<table>
+<tr><th>Property</th><th>Use</th></tr>
+<tr><td><code>ArgString</code></td><td>Semicolon-separated string arguments, for example <code>"0x4232;1"</code>.</td></tr>
+<tr><td><code>ArgBinary</code></td><td>Raw bytes. <code>EdiabasNet.HexToByteArray("A3C2")</code> converts a hex string. <code>ArgString</code> and <code>ArgBinary</code> share one buffer, so set only one of them.</td></tr>
+<tr><td><code>ArgStringStd</code>, <code>ArgBinaryStd</code></td><td>Arguments for the standard jobs (<code>INITIALISIERUNG</code>, <code>IDENTIFIKATION</code>, and the exit job) that the library runs on your behalf.</td></tr>
+<tr><td><code>ResultsRequests</code></td><td>Semicolon-separated names of the results you want. An empty string requests every result. Don't assign <code>null</code>.</td></tr>
+</table>
+</div>
+
+<h3 id="configure-from-code">Configure without a config file</h3>
+<p>The constructor accepts an optional configuration string. Use either an inline list of properties or a path to a config file prefixed with <code>@</code>.</p>
+<pre><code class="language-csharp">// Inline properties override EdiabasLib.config values.
+var ediabas = new EdiabasNet("EnetRemoteHost=auto:all;IfhTrace=2");
+
+// Load a specific config file instead of the one next to the assembly.
+var hosted = new EdiabasNet(@"@C:\MyApp\EdiabasLib.config", isHosted: true);</code></pre>
+<p>Set <code>isHosted</code> to <code>true</code> when the library runs inside a service or another host that manages its own trace directory. The constructor then skips the automatic creation of a <code>Trace</code> folder next to the assembly.</p>
+
+<h2 id="cli">Run a job from the command line</h2>
+<p>The <code>EdiabasTest</code> console application runs jobs against ECU files without any code.</p>
+<div class="callout warning">
+<strong>Warning:</strong> <code>EdiabasTest</code> doesn't build in this fork, because it targets .NET Framework 4.8.1 and the fork removed that target from the library. To use the commands in this section, build <code>EdiabasTest</code> from the upstream project, or retarget it first. See <a href="fork-changes.html#known-issues">Known issues</a>.
+</div>
+<p>The general form of a job argument is:</p>
+<pre><code>&lt;job name&gt;#&lt;arguments ; separated&gt;#&lt;requested results ; separated&gt;#&lt;standard arguments ; separated&gt;</code></pre>
+<p>Prefix a binary argument with <code>|</code>, for example <code>|A3C2</code>.</p>
+<pre><code>EdiabasTest.exe -p "COM4" --cfg="IfhTrace=2" -s "Ecu\d_motor.grp" ^
+    -j "FS_LESEN" ^
+    -j "FS_LESEN_DETAIL#0x4232#F_ART_ANZ;F_UW_ANZ" ^
+    -j "STATUS_RAILDRUCK_IST##STAT_RAILDRUCK_IST_WERT"</code></pre>
+<div class="table-wrap">
+<table>
+<tr><th>Flag</th><th>Meaning</th></tr>
+<tr><td><code>-s</code>, <code>--sgbd=</code></td><td>Group or ECU file to load.</td></tr>
+<tr><td><code>-p</code>, <code>--port=</code></td><td>COM port for the OBD, ADS, and EDIC interfaces. For the ENET interface, the remote host.</td></tr>
+<tr><td><code>--ifh=</code></td><td>Interface handler: <code>STD:OBD</code>, <code>STD:OMITEC</code>, <code>ADS</code>, <code>EDIC</code>, <code>ENET</code>, or <code>RPLUS:&lt;name&gt;</code>.</td></tr>
+<tr><td><code>--cfg=</code></td><td>Semicolon-separated property overrides, for example <code>--cfg="IfhTrace=3;EnetRemoteHost=auto:all"</code>.</td></tr>
+<tr><td><code>-j</code>, <code>--job=</code></td><td>A job to run. Repeat the flag to run several jobs in order.</td></tr>
+<tr><td><code>-f</code>, <code>--format=</code></td><td>Format string for one result, for example <code>-f STAT_TEMP_WERT=-8.2R</code>. See <a href="api-reference.html#format-result">FormatResult</a>.</td></tr>
+<tr><td><code>-o</code>, <code>--out=</code></td><td>Write output to a file instead of the console. Add <code>-a</code> to append to the file.</td></tr>
+<tr><td><code>--continue</code></td><td>Continue with the next job after an error.</td></tr>
+</table>
+</div>
+
+<h2 id="verify">Verify the setup</h2>
+<p>Run one job with tracing enabled and inspect the trace file. Set <code>IfhTrace</code> to <code>1</code> to log the interface events and every telegram, or to <code>3</code> to also log each BEST/1 opcode that the interpreter executes. The library writes <code>ifh.trc</code> to the directory that the <code>TracePath</code> property names. See <a href="errors-and-tracing.html#tracing">Tracing</a>.</p>
+<!-- END CONTENT -->
+<div class="pager">
+  <a class="prev" href="index.html"><span>Previous</span>Overview</a>
+  <a class="next" href="architecture.html"><span>Next</span>Architecture</a>
+</div>
+<footer class="page-footer">
+<p>This documentation describes the <code>anykee-v2</code> branch of the <code>Ediabaslib3</code> fork.</p>
+<p>Last updated 2026-09-30.</p>
+</footer>
+</article>
+</main>
+<aside class="toc" aria-label="On this page"></aside>
+</div>
+</body>
+</html>

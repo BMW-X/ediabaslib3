@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API reference | EdiabasLib</title>
+<meta name="description" content="Public members of EdiabasNet, EdInterfaceBase, EdiabasNetException, and the helper types.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>try{var t=localStorage.getItem('edlib-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="header-row">
+    <button type="button" class="icon-button nav-toggle" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <a class="site-logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="7" width="18" height="18" rx="3" fill="#1a73e8"/><path d="M12 3v4M20 3v4M12 25v4M20 25v4M3 12h4M3 20h4M25 12h4M25 20h4" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"/><path d="M12.5 16.5l2.5 2.5 4.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>EdiabasLib</b> Docs</span></a>
+    <span class="header-spacer"></span>
+    <button type="button" class="icon-button theme-toggle" aria-label="Switch between light and dark theme" title="Switch theme"><svg class="icon-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg><svg class="icon-light" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 0 0 0-2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0-2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0-2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-2 0zM5.99 4.58a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06z"/></svg></button>
+  </div>
+  <nav class="header-tabs" aria-label="Sections">
+    <a href="index.html">Overview</a>
+    <a href="getting-started.html">Guides</a>
+    <a class="active" aria-current="true" href="api-reference.html">Reference</a>
+    <a href="fork-changes.html">This fork</a>
+  </nav>
+</header>
+<div class="page">
+<nav class="book-nav" aria-label="Documentation pages">
+  <a href="index.html">Overview</a>
+  <p class="nav-section">Guides</p>
+  <a href="getting-started.html">Get started</a>
+  <a href="architecture.html">Architecture</a>
+  <a href="interfaces.html">Interfaces and simulation</a>
+  <a href="configuration.html">Configuration</a>
+  <a href="errors-and-tracing.html">Errors and tracing</a>
+  <p class="nav-section">Reference</p>
+  <a class="active" aria-current="page" href="api-reference.html">API reference</a>
+  <p class="nav-section">This fork</p>
+  <a href="fork-changes.html">Fork changes</a>
+  <a href="code-review.html">Code review</a>
+</nav>
+<div class="nav-scrim"></div>
+<main id="main-content">
+<article>
+<ol class="breadcrumbs" aria-label="Breadcrumb"><li><a href="index.html">EdiabasLib</a></li><li>Reference</li><li aria-current="page">API reference</li></ol>
+<!-- BEGIN CONTENT -->
+<h1>API reference</h1>
+<p class="lead">This page lists the public members that host applications use. All types live in the <code>EdiabasLib</code> namespace. Nullable reference types are disabled in the library, so signatures don't show which parameters accept <code>null</code>.</p>
+
+<h2 id="ediabasnet">EdiabasNet</h2>
+<p><code>public partial class EdiabasNet : IDisposable</code></p>
+<p>The interpreter. Create one instance per diagnostic session. An instance runs one job at a time.</p>
+
+<h3 id="ctor">Constructors</h3>
+<dl class="api">
+<dt>EdiabasNet()</dt>
+<dd>Reads <code>EDIABAS.INI</code> and <code>EdiabasLib.config</code> from the assembly directory.</dd>
+<dt>EdiabasNet(string config, bool isHosted = false)</dt>
+<dd><code>config</code> is either <code>@&lt;path&gt;</code> to a config file or a <code>key=value;key=value</code> list that overrides file settings. <code>isHosted</code> skips the automatic trace directory setup. See <a href="configuration.html#sources">Where settings come from</a>.</dd>
+<dt>void Dispose()</dt>
+<dd>Runs the exit job if required, closes the ECU file, disposes the interface handler, and closes the trace files. Safe to call more than once.</dd>
+</dl>
+
+<h3 id="lifecycle">File and job methods</h3>
+<dl class="api">
+<dt>void ResolveSgbdFile(string fileName)</dt>
+<dd>Resolves a <code>.GRP</code> or <code>.PRG</code> name relative to <code>EcuPath</code> and stores the result in <code>SgbdFileName</code>. For a group file, runs the identification job against the vehicle. Throws <code>ArgumentOutOfRangeException</code> when the file is missing or unreadable, when no variant matches, or when a job is running. Throws <code>EdiabasNetException</code> for errors inside the identification job.</dd>
+<dt>void ExecuteJob(string jobName)</dt>
+<dd>Runs the named job in the current ECU file with the current arguments and publishes a new <code>ResultSets</code> list. Clears the four argument properties when it returns, so set them again before each job. Throws <code>EdiabasNetException</code> for ECU and interpreter errors, including <code>EDIABAS_SYS_0008</code> for an unknown job. Throws <code>ArgumentOutOfRangeException</code> when a job is already running or the ECU file can't be opened. Rethrows transport exceptions unchanged. See <a href="errors-and-tracing.html#other-exceptions">Exceptions that aren't EDIABAS errors</a>.</dd>
+<dt>bool IsJobExisting(string jobName)</dt>
+<dd>Returns <code>true</code> when the open ECU file defines the job. The library opens the file on the first <code>ExecuteJob</code>, not in <code>ResolveSgbdFile</code>, so the method returns <code>false</code> before that.</dd>
+<dt>void CloseSgbd()</dt>
+<dd>Marks the ECU file for closing. The library runs the exit job and closes the file at the start of the next <code>ExecuteJob</code>, or in <code>Dispose</code>.</dd>
+<dt>void ClearGroupMapping()</dt>
+<dd>Forgets cached group-to-variant resolutions so the next <code>ResolveSgbdFile</code> identifies the ECU again.</dd>
+<dt>UInt32 GetFileType(string fileName)</dt>
+<dd>Reads the type field from the file header. The value is <code>0</code> for a group file and nonzero for an ECU file. Throws <code>ArgumentOutOfRangeException</code> when the file is missing or unreadable.</dd>
+<dt>List&lt;List&lt;string&gt;&gt; GetTableLines(string tableName)</dt>
+<dd>Returns the rows of a table defined in the current ECU file. The first row holds the column names.</dd>
+<dt>List&lt;string&gt; GetTableColumn(List&lt;List&lt;string&gt;&gt; tableLines, string columnName)</dt>
+<dd>Extracts one column from the result of <code>GetTableLines</code>.</dd>
+</dl>
+
+<h3 id="arguments">Argument and result properties</h3>
+<dl class="api">
+<dt>string ArgString { get; set; }</dt>
+<dd>Semicolon-separated job arguments. Shares one buffer with <code>ArgBinary</code>, so setting either property replaces the other.</dd>
+<dt>byte[] ArgBinary { get; set; }</dt>
+<dd>Binary job argument. After you set <code>ArgString</code>, this property returns the Windows-1252 bytes of that string.</dd>
+<dt>string ArgStringStd { get; set; }, byte[] ArgBinaryStd { get; set; }</dt>
+<dd>Arguments for the standard jobs that the library runs automatically.</dd>
+<dt>string ResultsRequests { get; set; }</dt>
+<dd>Semicolon-separated result names to keep. An empty string requests every result. Names are stored upper-case. Don't assign <code>null</code>; the setter throws <code>NullReferenceException</code>.</dd>
+<dt>Dictionary&lt;string, bool&gt; ResultsRequestDict { get; }</dt>
+<dd>The parsed form of <code>ResultsRequests</code>.</dd>
+<dt>List&lt;Dictionary&lt;string, ResultData&gt;&gt; ResultSets { get; }</dt>
+<dd>Results of the last job. Index 0 is the system set. See <a href="architecture.html#result-sets">Result set layout</a>. Each job publishes a new list, so a list that you already hold doesn't change. The property is <code>null</code> before the first job and while a job runs.</dd>
+<dt>bool NoInitForVJobs { get; set; }</dt>
+<dd>When <code>true</code>, virtual jobs such as <code>_JOBS</code>, <code>_TABLES</code>, and <code>_VERSIONINFO</code> run without the initialization job.</dd>
+</dl>
+
+<h3 id="state">State properties</h3>
+<dl class="api">
+<dt>string SgbdFileName { get; set; }</dt>
+<dd>The ECU file to execute. Set by <code>ResolveSgbdFile</code>. Changing it schedules a file reload before the next job.</dd>
+<dt>string GroupName { get; }, string FamilyName { get; }</dt>
+<dd>The base name of the group file that you passed to <code>ResolveSgbdFile</code>, and the <code>FAMILIE</code> result of its identification job. Both are empty when you resolve a <code>.PRG</code> file directly.</dd>
+<dt>string EcuPath { get; }</dt>
+<dd>Directory that contains the ECU files. To change it, call <code>SetConfigProperty("EcuPath", path)</code>.</dd>
+<dt>EdInterfaceBase EdInterfaceClass { get; set; }</dt>
+<dd>The interface handler. The setter links the handler to this instance and sets the <code>Interface</code> and <code>IfhVersion</code> properties. Cannot be changed while a job runs.</dd>
+<dt>bool JobRunning { get; }</dt>
+<dd><code>true</code> while <code>ExecuteJob</code> runs, and while <code>ResolveSgbdFile</code> runs the identification job of a group file.</dd>
+<dt>bool IsDisposed { get; }, bool Unloading { get; }</dt>
+<dd>Lifecycle flags. <code>Unloading</code> becomes <code>true</code> when you call <code>SetConfigProperty("EDIABASUnload", "1")</code>. The Bluetooth and Wi-Fi transports then close their connection on disconnect, even when <code>ObdKeepConnectionOpen</code> is set.</dd>
+<dt>ErrorCodes ErrorCodeLast { get; }</dt>
+<dd>The code of the last error that <code>RaiseError</code> raised. Reset to <code>EDIABAS_ERR_NONE</code> at the start of each job. An error that the job masks doesn't change it.</dd>
+<dt>bool Simulation { get; }, string SimulationPath { get; }</dt>
+<dd>Simulation mode state and directory. To change them, call <code>SetConfigProperty</code>. See <a href="interfaces.html#simulation">Simulation mode</a>.</dd>
+<dt>string IniFileName { get; }</dt>
+<dd>Path of the <code>EDIABAS.INI</code> that the constructor found, or an empty string.</dd>
+<dt>long TimeMeas { get; set; }</dt>
+<dd>Accumulated transmit time in ticks. Shared across instances in the current implementation.</dd>
+<dt>int InfoProgressPercent { get; }, string InfoProgressText { get; }</dt>
+<dd>Progress values set by the running job. Read them from <code>ProgressJobFunc</code>.</dd>
+<dt>string LogInfo { get; set; }</dt>
+<dd>A free-text line that the library writes into the header of a newly opened interface trace file. Set it before the library writes the first trace line.</dd>
+<dt>bool EnableFileNameEncoding { get; set; }</dt>
+<dd>Enables the file name obfuscation scheme used by the Android app for ECU files.</dd>
+</dl>
+
+<h3 id="callbacks">Callback properties</h3>
+<dl class="api">
+<dt>AbortJobDelegate AbortJobFunc { get; set; }</dt>
+<dd><code>bool AbortJobDelegate()</code>. Return <code>true</code> to abort the running job.</dd>
+<dt>ProgressJobDelegate ProgressJobFunc { get; set; }</dt>
+<dd><code>void ProgressJobDelegate(EdiabasNet ediabas)</code>. Called on progress updates.</dd>
+<dt>ErrorRaisedDelegate ErrorRaisedFunc { get; set; }</dt>
+<dd><code>void ErrorRaisedDelegate(ErrorCodes error)</code>. Called before an error is thrown.</dd>
+</dl>
+
+<h3 id="config-methods">Configuration methods</h3>
+<dl class="api">
+<dt>string GetConfigProperty(string name)</dt>
+<dd>Returns the property value or <code>null</code>. Names are case-insensitive.</dd>
+<dt>string GetConfigProperty(string name, CallSource callSource)</dt>
+<dd>Same as above. Pass <code>CallSource.EdiabasOperation</code> when an ECU file requests the property; some properties, such as <code>Simulation</code>, are hidden from ECU files unless <code>SimulationCompat</code> is set.</dd>
+<dt>void SetConfigProperty(string name, string value)</dt>
+<dd>Sets a property, or removes it when <code>value</code> is <code>null</code> or empty. Trace properties take effect immediately. An interface handler reads its properties when you assign it to <code>EdInterfaceClass</code>, so set them before that. See <a href="configuration.html#when">When properties take effect</a>. The method does nothing after <code>Dispose</code>, and it ignores the trace properties when <code>LockTrace</code> is active.</dd>
+<dt>bool ReadIniSettings(string iniFile, ref List&lt;string&gt; logList)</dt>
+<dd>Reads the supported keys from an <code>EDIABAS.INI</code> file.</dd>
+<dt>void ReadAllSettingsProperties(XmlDocument xdocConfig, ref List&lt;string&gt; logList)</dt>
+<dd>Imports every <code>appSettings</code> entry from an XML document.</dd>
+</dl>
+
+<h3 id="error-methods">Error methods</h3>
+<dl class="api">
+<dt>void SetError(ErrorCodes error, Dictionary&lt;string, object&gt; args = null, [CallerMemberName] string source = null)</dt>
+<dd>Records an error and raises it unless the job masked it. Interface handlers call this method. The compiler fills in <code>source</code> with the name of the calling member.</dd>
+<dt>void RaiseError(ErrorCodes error, Dictionary&lt;string, object&gt; args = null, string source = null)</dt>
+<dd>Stores the code in <code>ErrorCodeLast</code>, invokes <code>ErrorRaisedFunc</code>, and throws <code>EdiabasNetException</code>.</dd>
+<dt>static string GetErrorDescription(ErrorCodes errorCode)</dt>
+<dd>Returns the EDIABAS text for a code, for example <code>SYS-0002: ECU OBJECT FILE NOT FOUND</code>. Returns an empty string for an unknown code.</dd>
+</dl>
+
+<h3 id="log-methods">Logging methods</h3>
+<dl class="api">
+<dt>void LogFormat(EdLogLevel logLevel, string format, params object[] args)</dt>
+<dd>Formats and writes a line to the interface trace, <code>ifh.trc</code>, when <code>logLevel</code> is at or below the configured <code>IfhTrace</code>.</dd>
+<dt>void LogString(EdLogLevel logLevel, string info)</dt>
+<dd>Writes a preformatted line.</dd>
+<dt>void LogData(EdLogLevel logLevel, byte[] data, int offset, int length, string info)</dt>
+<dd>Writes a hex dump of a telegram with a label.</dd>
+</dl>
+
+<h3 id="enums">Enumerations</h3>
+<div class="table-wrap">
+<table>
+<tr><th>Enum</th><th>Values</th></tr>
+<tr><td><code>ErrorCodes : uint</code></td><td>EDIABAS error numbers grouped as <code>EDIABAS_ERR_NONE</code>, <code>EDIABAS_IFH_*</code>, <code>EDIABAS_BIP_*</code>, <code>EDIABAS_SYS_*</code>, <code>EDIABAS_API_*</code>, <code>EDIABAS_NET_*</code>, <code>EDIABAS_SEC_*</code>, and <code>EDIABAS_RUN_*</code>.</td></tr>
+<tr><td><code>ResultType : byte</code></td><td><code>TypeB</code> (8-bit), <code>TypeW</code> (16-bit), <code>TypeD</code> (32-bit), <code>TypeQ</code> (64-bit), <code>TypeC</code> (8-bit signed), <code>TypeI</code> (16-bit signed), <code>TypeL</code> (32-bit signed), <code>TypeLL</code> (64-bit signed), <code>TypeR</code> (double), <code>TypeS</code> (string), <code>TypeY</code> (byte array).</td></tr>
+<tr><td><code>EdLogLevel</code></td><td><code>Off</code> (0), <code>Ifh</code> (1), <code>Error</code> (2), <code>Info</code> (3).</td></tr>
+<tr><td><code>CallSource</code></td><td><code>Default</code>, <code>EdiabasOperation</code>.</td></tr>
+<tr><td><code>IfhCommands</code>, <code>IfhStatusCodes</code>, <code>IfhParameterType</code></td><td>Constants for the RemotePLUS protocol. The code that uses them is in <code>EdInterfaceEnet.cs</code>, from which <code>EdInterfaceRplus</code> derives.</td></tr>
+</table>
+</div>
+
+<h3 id="static-props">Static properties</h3>
+<dl class="api">
+<dt>static string EdiabasVersionString { get; }</dt>
+<dd>The emulated EDIABAS version, <code>7.7.2</code>.</dd>
+<dt>static bool IsMinVersion760 { get; }, static bool IsMinVersion770 { get; }</dt>
+<dd>Version gates used by opcodes whose behavior changed between EDIABAS releases.</dd>
+<dt>static string AssemblyDirectory { get; }</dt>
+<dd>Directory that contains <code>EdiabasLib.dll</code>.</dd>
+<dt>static string EncodeFileNameKey { get; set; }</dt>
+<dd>Key for the ECU file name obfuscation scheme.</dd>
+</dl>
+
+<h2 id="resultdata">EdiabasNet.ResultData</h2>
+<p>One result value inside a result set.</p>
+<dl class="api">
+<dt>ResultType ResType { get; }</dt>
+<dd>The declared type of the value.</dd>
+<dt>string Name { get; }</dt>
+<dd>The result name as the job wrote it. The dictionary key of the result set is the upper-case form of this name.</dd>
+<dt>object OpData { get; }</dt>
+<dd>The boxed value: <code>Int64</code> for integer types, <code>Double</code> for <code>TypeR</code>, <code>string</code> for <code>TypeS</code>, <code>byte[]</code> for <code>TypeY</code>.</dd>
+</dl>
+<h3 id="format-result">FormatResult</h3>
+<dl class="api">
+<dt>static string FormatResult(ResultData resultData, string format)</dt>
+<dd>Converts a result to text with an EDIABAS format string. Pass an empty string for the default text conversion. The format has the form <code>[-][width][.precision][e|E]&lt;type&gt;</code> where <code>type</code> is one of <code>C</code>, <code>B</code>, <code>I</code>, <code>W</code>, <code>L</code>, <code>D</code>, <code>R</code>, <code>T</code>, or <code>X</code> (hexadecimal). For example, <code>-8.2R</code> prints a left-aligned real with two decimals in a field of eight characters. Returns <code>null</code> when the value can't be converted, which includes binary (<code>TypeY</code>) results with an empty format.</dd>
+</dl>
+
+<h2 id="exception">EdiabasNetException</h2>
+<p><code>public class EdiabasNetException : Exception</code></p>
+<dl class="api">
+<dt>EdiabasNetException(string message, ErrorCodes errorCode, Dictionary&lt;string, object&gt; args = null)</dt>
+<dd>Creates an exception for an EDIABAS error. Sets <code>HResult</code> to the error number.</dd>
+<dt>EdiabasNetException(string message, Exception innerException = null)</dt>
+<dd>Creates an exception without an error code. <code>ErrorCode</code> is <code>EDIABAS_ERR_NONE</code>.</dd>
+<dt>ErrorCodes ErrorCode { get; init; }</dt>
+<dd>The EDIABAS error code.</dd>
+<dt>Dictionary&lt;string, object&gt; Args { get; init; }</dt>
+<dd>Context values. Never <code>null</code>.</dd>
+</dl>
+<p>See <a href="errors-and-tracing.html#exception">Errors and tracing</a> for usage.</p>
+
+<h2 id="interfacebase">EdInterfaceBase</h2>
+<p><code>public abstract class EdInterfaceBase : IDisposable</code></p>
+<p>Base class for interface handlers. Implement it to add a new transport. The members below are the ones the interpreter and hosts use; helper members for simulation and caching are described in <a href="interfaces.html#base">The handler contract</a>.</p>
+<h3 id="ib-abstract">Abstract members</h3>
+<div class="table-wrap">
+<table>
+<tr><th>Member</th><th>Description</th></tr>
+<tr><td><code>bool IsValidInterfaceName(string name)</code></td><td>Accepts or rejects an interface name.</td></tr>
+<tr><td><code>bool InterfaceReset()</code>, <code>bool InterfaceBoot()</code></td><td>Reset the adapter or ECU link.</td></tr>
+<tr><td><code>bool TransmitData(byte[] sendData, out byte[] receiveData)</code></td><td>Request and response exchange.</td></tr>
+<tr><td><code>bool TransmitFrequent(byte[] sendData)</code>, <code>bool ReceiveFrequent(out byte[] receiveData)</code>, <code>bool StopFrequent()</code></td><td>Repeated request support.</td></tr>
+<tr><td><code>bool RawData(byte[] sendData, out byte[] receiveData)</code></td><td>Unframed transfer.</td></tr>
+<tr><td><code>bool TransmitCancel(bool cancel)</code></td><td>Sets or clears the cancel flag for a pending transfer.</td></tr>
+<tr><td><code>bool BmwFastProtocol { get; }</code></td><td><code>true</code> when the current concept is BMW-FAST.</td></tr>
+<tr><td><code>string InterfaceType { get; }</code>, <code>UInt32 InterfaceVersion { get; }</code>, <code>string InterfaceName { get; }</code></td><td>Interface type and version for the <code>xtype</code> and <code>xvers</code> opcodes, and the name that the <code>EdInterfaceClass</code> setter writes to the <code>Interface</code> property.</td></tr>
+<tr><td><code>byte[] KeyBytes { get; }</code>, <code>byte[] State { get; }</code></td><td>ECU key bytes and interface state.</td></tr>
+<tr><td><code>UInt32 LoopTest { get; }</code></td><td>Loop test result.</td></tr>
+<tr><td><code>Int64 BatteryVoltage { get; }</code>, <code>Int64 IgnitionVoltage { get; }</code></td><td>Voltages in millivolts.</td></tr>
+<tr><td><code>int? AdapterVersion { get; }</code>, <code>byte[] AdapterSerial { get; }</code>, <code>double? AdapterVoltage { get; }</code></td><td>Adapter firmware details; <code>null</code> when unknown.</td></tr>
+<tr><td><code>Int64 GetPort(UInt32 index)</code>, <code>void SetPort(UInt32 index, UInt32 value)</code></td><td>Digital port access on adapters that support it.</td></tr>
+<tr><td><code>void SetProgramVoltage(UInt32 voltage)</code>, <code>void SwitchSiRelais(UInt32 time)</code></td><td>Programming voltage and relay control.</td></tr>
+<tr><td><code>bool Connected { get; }</code>, <code>bool IsEcuConnected { get; }</code></td><td>Link and ECU status.</td></tr>
+</table>
+</div>
+<h3 id="ib-virtual">Virtual members</h3>
+<div class="table-wrap">
+<table>
+<tr><th>Member</th><th>Default behavior</th></tr>
+<tr><td><code>bool InterfaceConnect()</code>, <code>bool InterfaceDisconnect()</code></td><td>Reset the communication parameters and the response count, load or unload the interface simulation file, and return <code>true</code>.</td></tr>
+<tr><td><code>bool InterfaceLock(int timeout = 0)</code>, <code>bool InterfaceUnlock()</code></td><td>Acquire and release the mutex in <code>InterfaceMutex</code>. The base class has no mutex and returns <code>false</code>; the OBD and ENET handlers provide one named mutex for each handler class.</td></tr>
+<tr><td><code>bool IsSimulationMode()</code></td><td>Returns <code>true</code> when the <code>Simulation</code> flag of the owning <code>EdiabasNet</code> is set and <code>SimulationPath</code> is an existing directory.</td></tr>
+<tr><td><code>EdiabasNet Ediabas { get; set; }</code></td><td>The owning interpreter. Handlers read their configuration in the setter.</td></tr>
+<tr><td><code>object ConnectParameter { get; set; }</code></td><td>Platform-specific connection context, for example an Android activity.</td></tr>
+<tr><td><code>UInt32[] CommParameter { get; set; }</code>, <code>Int16[] CommAnswerLen { get; set; }</code></td><td>Communication parameters from the ECU file.</td></tr>
+<tr><td><code>string IfhName</code>, <code>string UnitName</code>, <code>string ApplicationName</code></td><td>Names reported to the trace and to RemotePLUS.</td></tr>
+<tr><td><code>long ResponseCount { get; set; }</code></td><td>Number of responses received; hosts use it to detect progress.</td></tr>
+<tr><td><code>void Dispose()</code>, <code>protected virtual void Dispose(bool disposing)</code></td><td><code>Dispose()</code> isn't virtual. Override <code>Dispose(bool)</code> to release the mutex and the transport resources; the base implementation does nothing.</td></tr>
+</table>
+</div>
+<h3 id="ib-static">Static helpers</h3>
+<div class="table-wrap">
+<table>
+<tr><th>Member</th><th>Description</th></tr>
+<tr><td><code>static int TelLengthBmwFast(byte[] dataBuffer)</code></td><td>Total length of a BMW-FAST telegram from its header.</td></tr>
+<tr><td><code>static int DataLengthBmwFast(byte[] dataBuffer, out int dataOffset)</code></td><td>Payload length and offset of a BMW-FAST telegram.</td></tr>
+<tr><td><code>static byte CalcChecksumBmwFast(byte[] data, int length)</code></td><td>Additive checksum.</td></tr>
+<tr><td><code>static byte[] Int16ByteArrayToLe(...)</code>, <code>UInt32ByteArrayToLe(...)</code>, <code>UInt32ByteArrayTo16Le(...)</code>, <code>UInt32ByteArrayTo8Le(...)</code></td><td>Little-endian encoders for communication parameter arrays.</td></tr>
+</table>
+</div>
+
+<h2 id="helpers">Static helpers on EdiabasNet</h2>
+<div class="table-wrap">
+<table>
+<tr><th>Member</th><th>Description</th></tr>
+<tr><td><code>static Int64 StringToValue(string number)</code>, <code>StringToValue(string number, out bool valid)</code></td><td>Parses decimal, <code>0x</code> hex, and <code>0y</code> binary literals. Stops at the first <code>.</code> or <code>,</code> in decimal input, so <code>"192.168.1.5"</code> parses as <code>192</code>.</td></tr>
+<tr><td><code>static EdFloatType StringToFloat(string number)</code>, <code>StringToFloat(string number, out bool valid)</code></td><td>Parses a floating-point literal with the invariant culture.</td></tr>
+<tr><td><code>static byte[] HexToByteArray(string valueStr)</code></td><td>Converts a hex string such as <code>"A3C2"</code> to bytes. Returns an empty array for invalid input.</td></tr>
+<tr><td><code>static string GetExceptionText(Exception ex)</code>, <code>GetExceptionText(Exception ex, bool includeTypes, bool includeStack)</code></td><td>Flattens an exception chain into one string for logging.</td></tr>
+<tr><td><code>static bool IsDirectoryWritable(string dirPath, bool create = false)</code></td><td>Probes a directory by writing a temporary file.</td></tr>
+<tr><td><code>static string GetEdiabasLibUserDir(bool create = false)</code></td><td>Returns <code>%LocalAppData%\EdiabasLib</code>.</td></tr>
+<tr><td><code>static bool LoadAllResourceAssemblies()</code></td><td>Loads the NuGet assemblies embedded in the DLL. Returns <code>false</code> when the build contains none.</td></tr>
+<tr><td><code>static int GetHashCode(string str)</code></td><td>Stable string hash used for file name encoding.</td></tr>
+<tr><td><code>static string ScrambleString(...)</code>, <code>UnscrambleString(...)</code>, <code>EncodeFilePath(...)</code>, <code>DecodeFilePath(...)</code>, <code>EncodeFileName(...)</code>, <code>DecodeFileName(...)</code>, <code>GetExistingEncodedFilePath(...)</code></td><td>ECU file name obfuscation used by the Android app.</td></tr>
+</table>
+</div>
+<!-- END CONTENT -->
+<div class="pager">
+  <a class="prev" href="errors-and-tracing.html"><span>Previous</span>Errors and tracing</a>
+  <a class="next" href="fork-changes.html"><span>Next</span>Fork changes</a>
+</div>
+<footer class="page-footer">
+<p>This documentation describes the <code>anykee-v2</code> branch of the <code>Ediabaslib3</code> fork.</p>
+<p>Last updated 2026-09-30.</p>
+</footer>
+</article>
+</main>
+<aside class="toc" aria-label="On this page"></aside>
+</div>
+</body>
+</html>

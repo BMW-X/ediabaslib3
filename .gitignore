@@ -9,3 +9,92 @@
 /Doc/
 /.vs/
 /.github/
+
+# ---- Visual Studio (from github/gitignore VisualStudio.gitignore) ----
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio cache, settings and IntelliSense databases
+.vs/
+*.VC.db
+*.VC.VC.opendb
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# MSBuild and NuGet
+*.binlog
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+# ReSharper, Rider and other tools
+_ReSharper*/
+*.DotSettings.user
+.idea/
+*.sln.iml
+
+# Visual Studio publish and temporary files
+*.[Pp]ublish.xml
+*.pubxml.user
+*.tmp
+*.tmp_proj
+*.log
+*.tlog
+*.pdb
+*.ilk
+*.ipdb
+*.iobj
+*.pch
+*.meta
+*.obj
+*.idb
+*.pgc
+*.pgd
+*.rsp
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Upstream ships firmware and tool binaries in these folders on purpose
+!EdiabasLib/CanAdapterElm/Bluetooth/spp_uart/release/
+!EdiabasLib/CanAdapterElm/UpdateLoader/Bin/
+!EdiabasLib/EnetAdapter/files/usr/bin/

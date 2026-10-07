@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuration | EdiabasLib</title>
+<meta name="description" content="Where EdiabasLib reads its settings from, when they take effect, and what each configuration property does.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>try{var t=localStorage.getItem('edlib-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="header-row">
+    <button type="button" class="icon-button nav-toggle" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <a class="site-logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="7" width="18" height="18" rx="3" fill="#1a73e8"/><path d="M12 3v4M20 3v4M12 25v4M20 25v4M3 12h4M3 20h4M25 12h4M25 20h4" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"/><path d="M12.5 16.5l2.5 2.5 4.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>EdiabasLib</b> Docs</span></a>
+    <span class="header-spacer"></span>
+    <button type="button" class="icon-button theme-toggle" aria-label="Switch between light and dark theme" title="Switch theme"><svg class="icon-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg><svg class="icon-light" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 0 0 0-2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0-2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0-2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-2 0zM5.99 4.58a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 0 0-1.41 1.41l1.06 1.06a1 1 0 0 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 0 0-1.41-1.41l-1.06 1.06a1 1 0 0 0 1.41 1.41l1.06-1.06z"/></svg></button>
+  </div>
+  <nav class="header-tabs" aria-label="Sections">
+    <a href="index.html">Overview</a>
+    <a class="active" aria-current="true" href="getting-started.html">Guides</a>
+    <a href="api-reference.html">Reference</a>
+    <a href="fork-changes.html">This fork</a>
+  </nav>
+</header>
+<div class="page">
+<nav class="book-nav" aria-label="Documentation pages">
+  <a href="index.html">Overview</a>
+  <p class="nav-section">Guides</p>
+  <a href="getting-started.html">Get started</a>
+  <a href="architecture.html">Architecture</a>
+  <a href="interfaces.html">Interfaces and simulation</a>
+  <a class="active" aria-current="page" href="configuration.html">Configuration</a>
+  <a href="errors-and-tracing.html">Errors and tracing</a>
+  <p class="nav-section">Reference</p>
+  <a href="api-reference.html">API reference</a>
+  <p class="nav-section">This fork</p>
+  <a href="fork-changes.html">Fork changes</a>
+  <a href="code-review.html">Code review</a>
+</nav>
+<div class="nav-scrim"></div>
+<main id="main-content">
+<article>
+<ol class="breadcrumbs" aria-label="Breadcrumb"><li><a href="index.html">EdiabasLib</a></li><li>Guides</li><li aria-current="page">Configuration</li></ol>
+<!-- BEGIN CONTENT -->
+<h1>Configuration</h1>
+<p class="lead">EdiabasLib stores every setting as a named string property. You can set properties from files, from the constructor, or from code at run time.</p>
+
+<h2 id="sources">Where settings come from</h2>
+<p>The <code>EdiabasNet</code> constructor applies settings in the following order. Later sources override earlier ones.</p>
+<ol>
+  <li><strong>Built-in defaults.</strong> The constructor sets <code>EcuPath</code> to the assembly directory, <code>ApiTrace</code> and <code>IfhTrace</code> to <code>0</code>, and computes a default <code>TracePath</code>.</li>
+  <li><strong><code>EDIABAS.INI</code></strong> in the assembly directory, if present. The constructor reads only the <code>Interface</code>, <code>EcuPath</code>, <code>ApiTrace</code>, <code>IfhTrace</code>, and <code>TraceBuffering</code> keys from the <code>[Configuration]</code> section.</li>
+  <li><strong><code>EdiabasLib.config</code></strong> in the assembly directory, or the file that you name with an <code>@</code> prefix in the constructor argument. Every <code>&lt;add key="..." value="..."/&gt;</code> element under <code>&lt;appSettings&gt;</code> becomes a property.</li>
+  <li><strong>The constructor string.</strong> A semicolon-separated <code>key=value</code> list, for example <code>"EnetRemoteHost=auto:all;IfhTrace=2"</code>. The constructor argument is either this list or an <code>@</code> file name, not both.</li>
+  <li><strong>Code.</strong> <code>SetConfigProperty(name, value)</code>. Pass <code>null</code> or an empty string to remove a property.</li>
+</ol>
+<p>Property names are case-insensitive. <code>GetConfigProperty(name)</code> returns <code>null</code> for an unknown name, so check for <code>null</code> before you parse a value.</p>
+<div class="callout">
+<strong>Note:</strong> The ENET handler also reads the <code>[XEthernet]</code> and <code>[SSL]</code> sections of <code>EDIABAS.INI</code>, but only when its configured remote host isn't an IP address (for example, the default <code>auto</code>) and the <code>RemoteHost</code> key in the file is one. Put the rest of your settings in <code>EdiabasLib.config</code>.
+</div>
+
+<h3 id="when">When properties take effect</h3>
+<p>The library doesn't read every property at the same time. The following table shows when a change takes effect.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Properties</th><th>When the library reads them</th></tr>
+<tr><td>Interface handler properties: <code>ObdComPort</code> and the other <code>Obd*</code> properties, <code>AdsComPort</code>, <code>EdicComPort</code>, the <code>Enet*</code> properties, and the per-name <code>RPLUS</code> properties</td><td>Once, when you assign the handler to <code>EdInterfaceClass</code>. A later call to <code>SetConfigProperty</code> has no effect on the handler.</td></tr>
+<tr><td><code>RetryComm</code>, <code>ObdKeepConnectionOpen</code>, <code>SimulationInterfaces</code>, <code>SystemResults</code>, and the trace properties</td><td>Each time the library uses them.</td></tr>
+<tr><td><code>EcuPath</code>, <code>Simulation</code>, <code>SimulationPath</code></td><td>Immediately. <code>SetConfigProperty</code> throws <code>ArgumentOutOfRangeException</code> for these three properties while a job runs.</td></tr>
+</table>
+</div>
+<p>To change a handler setting after you assign the handler, use the public properties of the handler instead, for example <code>EdInterfaceObd.ComPort</code> or <code>EdInterfaceEnet.RemoteHost</code>.</p>
+
+<h3 id="config-file">Sample EdiabasLib.config</h3>
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+&lt;configuration&gt;
+  &lt;appSettings&gt;
+    &lt;add key="Interface" value="ENET"/&gt;
+    &lt;add key="EcuPath" value="C:\EDIABAS\Ecu"/&gt;
+    &lt;add key="EnetRemoteHost" value="auto:all"/&gt;
+    &lt;add key="ObdComPort" value="COM4"/&gt;
+    &lt;add key="ApiTrace" value="0"/&gt;
+    &lt;add key="IfhTrace" value="0"/&gt;
+    &lt;add key="LockTrace" value="0"/&gt;
+  &lt;/appSettings&gt;
+&lt;/configuration&gt;</code></pre>
+
+<h2 id="general">General properties</h2>
+<div class="table-wrap">
+<table>
+<tr><th>Property</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>Interface</code></td><td>None</td><td>Interface handler name. <code>ApiInternal</code> and <code>EdiabasTest</code> use it to create the handler, and <code>ApiInternal</code> falls back to <code>STD:OBD</code>. When you assign <code>EdInterfaceClass</code> yourself, the setter writes this property.</td></tr>
+<tr><td><code>EcuPath</code></td><td>Assembly directory</td><td>Directory that contains the <code>.PRG</code> and <code>.GRP</code> files.</td></tr>
+<tr><td><code>RetryComm</code></td><td><code>1</code></td><td><code>0</code> turns off telegram retries. With any other value, the repeat counter that the ECU file sets applies.</td></tr>
+<tr><td><code>CompatMode</code></td><td><code>1</code></td><td>Affects the <code>a2flt</code> opcode only. With <code>0</code>, an invalid floating-point string raises <code>EDIABAS_BIP_0011</code>, as in EDIABAS 7.6.0 and later. With <code>1</code>, it doesn't, which some older ECU files need.</td></tr>
+<tr><td><code>SystemResults</code></td><td><code>1</code></td><td>Any value other than <code>0</code> adds <code>JOBSTATUS</code> and the battery and ignition values to the system result set. See <a href="architecture.html#result-sets">Result set layout</a>.</td></tr>
+<tr><td><code>EdiabasVersion</code></td><td><code>7.7.2</code></td><td>The emulated EDIABAS version. Set by the constructor for ECU files that read it.</td></tr>
+<tr><td><code>BipEcuFile</code></td><td>Internal</td><td>Set by the interpreter while a job runs. Don't set it yourself.</td></tr>
+<tr><td><code>EDIABASUnload</code></td><td>None</td><td>A value other than <code>0</code> marks the instance as unloading, which closes transports even when <code>ObdKeepConnectionOpen</code> is set.</td></tr>
+</table>
+</div>
+<p>The constructor also sets <code>UbattHandling</code>, <code>IgnitionHandling</code>, <code>ClampHandling</code>, <code>BipDebugLevel</code>, <code>TaskPriority</code>, and <code>EdicApiHandle</code> to <code>0</code> so that ECU files that read them get a value. The library forwards <code>UbattHandling</code> and <code>IgnitionHandling</code> to an ICOM over RemotePLUS and doesn't use the others.</p>
+
+<h2 id="trace">Trace properties</h2>
+<div class="table-wrap">
+<table>
+<tr><th>Property</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>IfhTrace</code></td><td><code>0</code></td><td>Interface trace level, <code>0</code> to <code>3</code>. See <a href="errors-and-tracing.html#log-levels">Trace levels</a>.</td></tr>
+<tr><td><code>ApiTrace</code></td><td><code>0</code></td><td>API trace level, <code>0</code> or <code>1</code>. Only <code>ApiInternal</code> writes this trace.</td></tr>
+<tr><td><code>TracePath</code></td><td class="wrap"><code>&lt;assembly&gt;\Trace</code>, or <code>%LocalAppData%\EdiabasLib\Trace</code></td><td>Directory for the trace files. No default on platforms other than Windows or when the constructor runs with <code>isHosted</code> set to <code>true</code>.</td></tr>
+<tr><td><code>IfhTraceName</code>, <code>ApiTraceName</code></td><td><code>ifh.trc</code>, <code>api.trc</code></td><td>File names inside <code>TracePath</code>.</td></tr>
+<tr><td><code>IfhTraceBuffering</code></td><td><code>1</code></td><td><code>1</code> buffers writes to the interface trace instead of flushing each line.</td></tr>
+<tr><td><code>TraceBuffering</code></td><td><code>0</code></td><td>The same setting for the API trace.</td></tr>
+<tr><td><code>AppendTrace</code></td><td><code>0</code></td><td><code>1</code> appends to an existing trace file, unless the file was last written more than about an hour ago.</td></tr>
+<tr><td><code>LockTrace</code></td><td><code>0</code></td><td><code>1</code> blocks later changes to the trace properties. It works only from <code>EdiabasLib.config</code>. See <a href="errors-and-tracing.html#trace-options">Trace options</a>.</td></tr>
+<tr><td><code>CompressTrace</code></td><td><code>0</code></td><td>Android builds only. A value other than <code>0</code> writes the trace into a ZIP archive.</td></tr>
+</table>
+</div>
+
+<h2 id="obd">OBD properties</h2>
+<div class="table-wrap">
+<table>
+<tr><th>Property</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>ObdComPort</code></td><td>None</td><td>Adapter selector for <code>STD:OBD</code>. See <a href="interfaces.html#obd">STD:OBD</a> for the accepted formats.</td></tr>
+<tr><td><code>AdsComPort</code>, <code>EdicComPort</code></td><td><code>ObdComPort</code></td><td>Port for the ADS and EDIC handlers.</td></tr>
+<tr><td><code>ObdKeepConnectionOpen</code></td><td><code>0</code></td><td><code>1</code> keeps a desktop Bluetooth link or a <code>DEEPOBDWIFI</code> link open between jobs.</td></tr>
+<tr><td><code>ObdDtrTimeCorrCom</code>, <code>ObdDtrTimeCorrFtdi</code></td><td><code>0.3</code></td><td>Extra time in milliseconds that the DTR line stays asserted while the handler sends data, for COM ports and FTDI devices.</td></tr>
+<tr><td><code>ObdAddRecTimeout</code></td><td><code>20</code></td><td>Extra receive timeout in milliseconds.</td></tr>
+<tr><td><code>ObdFtdiBitBang</code></td><td><code>0</code></td><td><code>1</code> allows FTDI bit-bang mode for Concept 2, Concept 3, and the KWP2000 variants. No transport in the desktop build uses this setting.</td></tr>
+<tr><td><code>ObdBatteryVoltage</code>, <code>ObdIgnitionVoltage</code></td><td><code>12000</code></td><td>Values in millivolts that the handler reports to jobs while the adapter signals that the voltage is present. Otherwise, the handler reports <code>0</code>.</td></tr>
+<tr><td><code>ObdDisabledConcepts</code></td><td>None</td><td>Colon-separated list of concept numbers to reject, for example <code>0x010F:0x0110</code>. A job that uses a listed concept gets <code>EDIABAS_IFH_0014</code>.</td></tr>
+<tr><td class="wrap"><code>ObdUdsEcuCanIdOverride</code>, <code>ObdUdsTesterCanIdOverride</code>, <code>ObdUdsDtcStatusOverride</code></td><td>None</td><td>Overrides for UDS CAN identifiers and DTC status masks.</td></tr>
+</table>
+</div>
+
+<h2 id="enet">ENET properties</h2>
+<p>To stay compatible with the EDIABAS <code>[XEthernet]</code> section, some properties also accept a short name. When you set both names, the short name wins.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Property</th><th>Short name</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>EnetRemoteHost</code></td><td><code>RemoteHost</code></td><td><code>auto</code></td><td>Gateway address or discovery mode. See <a href="interfaces.html#enet-discovery">Vehicle discovery</a>. Ignored by the <code>RPLUS</code> handler.</td></tr>
+<tr><td><code>EnetVehicleProtocol</code></td><td><code>VehicleProtocol</code></td><td><code>HSFZ,DoIP</code></td><td>Comma-separated order in which to try the vehicle protocols.</td></tr>
+<tr><td><code>EnetNetworkProtocol</code></td><td><code>NetworkProtocol</code></td><td><code>TCP</code></td><td><code>TCP</code> or <code>SSL</code>. <code>SSL</code> runs DoIP over TLS on the SSL port.</td></tr>
+<tr><td><code>EnetHostIdentService</code></td><td><code>HostIdentService</code></td><td><code>255.255.255.255</code></td><td>Broadcast address for vehicle discovery.</td></tr>
+<tr><td><code>EnetTesterAddress</code></td><td>None</td><td><code>0xF4</code></td><td>HSFZ tester address.</td></tr>
+<tr><td><code>EnetDoIPTesterAddress</code></td><td><code>DoIPTesterAddress</code></td><td><code>0x0EF3</code></td><td>DoIP tester logical address.</td></tr>
+<tr><td><code>EnetDoipGatewayAddress</code></td><td><code>DoipGatewayAddress</code></td><td><code>0x0010</code></td><td>DoIP gateway logical address.</td></tr>
+<tr><td><code>EnetDiagnosticPort</code>, <code>EnetControlPort</code></td><td><code>DiagnosticPort</code>, <code>ControlPort</code></td><td><code>6801</code>, <code>6811</code></td><td>HSFZ ports. For an ICOM, use the ports from its web interface. Pass a plain port number, without a host.</td></tr>
+<tr><td><code>EnetDoIPPort</code></td><td><code>PortDoIP</code></td><td><code>13400</code></td><td>DoIP port.</td></tr>
+<tr><td><code>EnetSslPort</code></td><td><code>SslPort</code></td><td><code>3496</code></td><td>DoIP port for TLS.</td></tr>
+<tr><td><code>EnetTimeoutConnect</code></td><td><code>TimeoutConnect</code></td><td><code>5000</code></td><td>TCP connect timeout in milliseconds.</td></tr>
+<tr><td><code>EnetTimeoutAcknowledge</code></td><td><code>TimeoutAcknowledge</code></td><td><code>2000</code></td><td>Time in milliseconds to wait for the DoIP acknowledgement. HSFZ uses a fixed timeout of 5000 milliseconds.</td></tr>
+<tr><td><code>EnetAddRecTimeout</code>, <code>EnetAddRecTimeoutIcom</code></td><td>None</td><td><code>1000</code>, <code>2000</code></td><td>Extra receive timeout in milliseconds for direct and ICOM connections.</td></tr>
+<tr><td><code>EnetIcomAllocate</code></td><td>None</td><td><code>0</code></td><td><code>1</code> allocates the ICOM channel over HTTP before the first connect. See <a href="interfaces.html#icom">ICOM</a>. The default is <code>1</code> on Android builds.</td></tr>
+<tr><td><code>EnetBatteryVoltage</code>, <code>EnetIgnitionVoltage</code></td><td>None</td><td><code>12000</code></td><td>Values in millivolts that the handler reports to jobs. It reports the battery value while it's connected, and the ignition value while the gateway reports that the ignition is on.</td></tr>
+</table>
+</div>
+<p>The following properties configure DoIP over TLS. See <a href="interfaces.html#doip-tls">DoIP over TLS</a>.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Property</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>SslBC</code></td><td><code>1</code></td><td><code>1</code> uses the BouncyCastle TLS client; <code>0</code> uses the .NET <code>SslStream</code>.</td></tr>
+<tr><td><code>SslSecurityPath</code></td><td>None</td><td>Directory with the trusted CA certificates.</td></tr>
+<tr><td><code>S29Path</code></td><td>Derived from <code>SslSecurityPath</code></td><td>Directory with the client certificates.</td></tr>
+<tr><td><code>selectCertificate</code></td><td>None</td><td>Name of the client certificate to load.</td></tr>
+<tr><td><code>JSONRequestPath</code>, <code>JSONResponsePath</code></td><td>None</td><td>Directories where the library writes certificate requests and imports certificate responses.</td></tr>
+</table>
+</div>
+
+<h2 id="rplus">RPLUS properties</h2>
+<p>The <code>RPLUS</code> handler reads four properties whose names end with the channel name from the interface string. For the interface <code>RPLUS:ICOM_P</code>, the names end with <code>_ICOM_P</code>.</p>
+<div class="table-wrap">
+<table>
+<tr><th>Property</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>RemoteHost_&lt;name&gt;</code></td><td>None</td><td>IP address of the ICOM.</td></tr>
+<tr><td><code>Port_&lt;name&gt;</code></td><td><code>6801</code></td><td>RemotePLUS port.</td></tr>
+<tr><td><code>TimeoutFunction_&lt;name&gt;</code></td><td><code>15000</code></td><td>Timeout in milliseconds for each RemotePLUS function call.</td></tr>
+<tr><td><code>IcomEnetRedirect_&lt;name&gt;</code></td><td>See description</td><td><code>1</code> lets the handler switch from RemotePLUS to HSFZ when the ICOM offers HSFZ on its standard ports. Set the property explicitly to turn the redirect on.</td></tr>
+</table>
+</div>
+
+<h2 id="simulation">Simulation properties</h2>
+<div class="table-wrap">
+<table>
+<tr><th>Property</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>Simulation</code></td><td><code>0</code></td><td><code>1</code> enables simulation mode. The <code>EdiabasNet.Simulation</code> property returns the current state.</td></tr>
+<tr><td><code>SimulationPath</code></td><td>None</td><td>Directory that contains the <code>.sim</code> files. Simulation is only active when this directory exists.</td></tr>
+<tr><td><code>SimulationCompat</code></td><td><code>0</code></td><td><code>1</code> lets the ECU file read the real value of <code>Simulation</code>. With <code>0</code>, the ECU file reads <code>0</code>.</td></tr>
+<tr><td><code>SimulationInterfaces</code></td><td>None</td><td>Comma-separated interface names, with wildcards, to look up interface simulation files.</td></tr>
+</table>
+</div>
+<!-- END CONTENT -->
+<div class="pager">
+  <a class="prev" href="interfaces.html"><span>Previous</span>Interfaces and simulation</a>
+  <a class="next" href="errors-and-tracing.html"><span>Next</span>Errors and tracing</a>
+</div>
+<footer class="page-footer">
+<p>This documentation describes the <code>anykee-v2</code> branch of the <code>Ediabaslib3</code> fork.</p>
+<p>Last updated 2026-09-30.</p>
+</footer>
+</article>
+</main>
+<aside class="toc" aria-label="On this page"></aside>
+</div>
+</body>
+</html>
